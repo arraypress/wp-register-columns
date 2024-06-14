@@ -1,0 +1,30 @@
+{
+  "name": "arraypress/register-custom-columns",
+  "description": "Easily register custom columns for any WordPress table.",
+  "homepage": "https://github.com/arraypress/register-custom-columns/",
+  "type": "library",
+  "license": "GPL-2.0-or-later",
+  "authors": [
+    {
+      "name": "David Sherlock",
+      "homepage": "https://arraypress.com/"
+    }
+  ],
+  "config": {
+    "optimize-autoloader": true,
+    "sort-packages": true
+  },
+  "require": {
+    "php": "^7.4 || ^8.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "ArrayPress\\RegisterCustomColumns\\": "src/"
+    },
+    "files": [
+      "src/Functions.php"
+    ]
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true
+}
