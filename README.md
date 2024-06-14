@@ -29,10 +29,19 @@ composer require arraypress/register-custom-columns
 
 ## Basic Usage
 
+```php
+use ArrayPress\RegisterCustomColumns\Utils\ColumnHelper;
+use function ArrayPress\RegisterCustomColumns\register_columns;
+use function ArrayPress\RegisterCustomColumns\register_user_columns;
+use function ArrayPress\RegisterCustomColumns\register_taxonomy_columns;
+use function ArrayPress\RegisterCustomColumns\register_media_columns;
+
+```
+
 ### Registering Post Columns
 
 ```php
-use ArrayPress\RegisterCustomColumns\Utils\ColumnHelper;
+use function ArrayPress\RegisterCustomColumns\register_post_columns;
 
 // Example for Posts: Display Thumbnail Image
 $custom_post_columns = [
@@ -54,7 +63,7 @@ register_post_columns( [ 'post', 'page' ], $custom_post_columns );
 ### Registering Comment Columns
 
 ```php
-use ArrayPress\RegisterCustomColumns\Utils\ColumnHelper;
+use function ArrayPress\RegisterCustomColumns\register_comment_columns;
 
 //  Example for Comments: Display Comment Word Count
 $custom_comment_columns = [
@@ -72,6 +81,31 @@ $custom_comment_columns = [
  ],
 ];
 register_comment_columns( $custom_comment_columns );
+```
+
+### Registering Taxonomy Columns
+
+```php
+use function ArrayPress\RegisterCustomColumns\register_taxonomy_columns;
+
+//  Example for Comments: Display Comment Word Count
+$custom_taxonomy_columns = [
+ 'color' => [
+     'label'            => __( 'Color', 'text-domain' ),
+     'meta_key'         => 'color_meta',
+     'inline_edit'      => true,
+     'inline_attributes' => [
+         'type'  => 'color',
+     ],
+     'display_callback' => function ( $value, $term_id, $column ) {
+         return ColumnHelper::color_circle( $value );
+     },
+     'permission_callback' => function () {
+         return current_user_can( 'edit_posts' );
+     }
+ ],
+];
+register_taxonomy_columns( [ 'category', 'post_tag' ], $custom_taxonomy_columns );
 ```
 
 ## Features Breakdown
