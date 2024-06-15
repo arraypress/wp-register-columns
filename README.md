@@ -31,11 +31,6 @@ composer require arraypress/register-custom-columns
 
 ```php
 use ArrayPress\RegisterCustomColumns\Utils\ColumnHelper;
-use function ArrayPress\RegisterCustomColumns\register_columns;
-use function ArrayPress\RegisterCustomColumns\register_user_columns;
-use function ArrayPress\RegisterCustomColumns\register_taxonomy_columns;
-use function ArrayPress\RegisterCustomColumns\register_media_columns;
-
 ```
 
 ### Registering Post Columns
@@ -43,20 +38,26 @@ use function ArrayPress\RegisterCustomColumns\register_media_columns;
 ```php
 use function ArrayPress\RegisterCustomColumns\register_post_columns;
 
-// Example for Posts: Display Thumbnail Image
+/**
+ * Example for Posts: Display Thumbnail Image
+ *
+ * This example demonstrates how to display a custom column in the posts table
+ * that shows the thumbnail image.
+ */
 $custom_post_columns = [
- 'thumbnail' => [
-     'label'               => __( 'Thumbnail', 'text-domain' ),
-     'display_callback'    => function ( $value, $post_id, $column ) {
-         $thumbnail_id = get_post_thumbnail_id( $post_id );
-         return ColumnHelper::image_thumbnail( $thumbnail_id, [64, 64] );
-     },
-     'position'            => 'before:title',
-     'permission_callback' => function () {
-         return current_user_can( 'edit_posts' );
-     }
- ],
+    'thumbnail' => [
+        'label'               => __( 'Thumbnail', 'text-domain' ),
+        'display_callback'    => function ( $value, $post_id, $column ) {
+            $thumbnail_id = get_post_thumbnail_id( $post_id );
+            return ColumnHelper::image_thumbnail( $thumbnail_id, [64, 64] );
+        },
+        'position'            => 'before:title',
+        'permission_callback' => function () {
+            return current_user_can( 'edit_posts' );
+        }
+    ],
 ];
+
 register_post_columns( [ 'post', 'page' ], $custom_post_columns );
 ```
 
@@ -65,20 +66,26 @@ register_post_columns( [ 'post', 'page' ], $custom_post_columns );
 ```php
 use function ArrayPress\RegisterCustomColumns\register_comment_columns;
 
-//  Example for Comments: Display Comment Word Count
+/**
+ * Example for Comments: Display Comment Word Count
+ *
+ * This example demonstrates how to display a custom column in the comments table
+ * that shows the word count of each comment. The word count is formatted using
+ * the `number_format_i18n` function to ensure proper localization.
+ */
 $custom_comment_columns = [
- 'comment_word_count' => [
-     'label'               => __( 'Word Count', 'text-domain' ),
-     'display_callback'    => function ( $value, $comment_id, $column ) {
-         $comment = get_comment( $comment_id );
-         $word_count = str_word_count( $comment->comment_content );
-         return ColumnHelper::formatted_word_count( $word_count );
-     },
-     'position'            => 'after:author',
-     'permission_callback' => function () {
-         return current_user_can( 'moderate_comments' );
-     }
- ],
+    'comment_word_count' => [
+        'label'               => __( 'Word Count', 'text-domain' ),
+        'display_callback'    => function ( $value, $comment_id, $column ) {
+            $comment = get_comment( $comment_id );
+            $word_count = str_word_count( $comment->comment_content );
+            return number_format_i18n( $word_count );
+        },
+        'position'            => 'after:author',
+        'permission_callback' => function () {
+            return current_user_can( 'moderate_comments' );
+        }
+    ],
 ];
 register_comment_columns( $custom_comment_columns );
 ```
@@ -88,24 +95,90 @@ register_comment_columns( $custom_comment_columns );
 ```php
 use function ArrayPress\RegisterCustomColumns\register_taxonomy_columns;
 
-//  Example for Comments: Display Comment Word Count
+/**
+ * Example for Taxonomy: Display Color
+ *
+ * This example demonstrates how to display a custom column in the taxonomy terms table
+ * that shows a color field. The color field supports inline editing.
+ */
 $custom_taxonomy_columns = [
- 'color' => [
-     'label'            => __( 'Color', 'text-domain' ),
-     'meta_key'         => 'color_meta',
-     'inline_edit'      => true,
-     'inline_attributes' => [
-         'type'  => 'color',
-     ],
-     'display_callback' => function ( $value, $term_id, $column ) {
-         return ColumnHelper::color_circle( $value );
-     },
-     'permission_callback' => function () {
-         return current_user_can( 'edit_posts' );
-     }
- ],
+    'color' => [
+        'label'            => __( 'Color', 'text-domain' ),
+        'meta_key'         => 'color_meta',
+        'inline_edit'      => true,
+        'inline_attributes' => [
+            'type'  => 'color',
+        ],
+        'display_callback' => function ( $value, $term_id, $column ) {
+            return ColumnHelper::color_circle( $value );
+        },
+        'permission_callback' => function () {
+            return current_user_can( 'manage_categories' );
+        }
+    ],
 ];
+
 register_taxonomy_columns( [ 'category', 'post_tag' ], $custom_taxonomy_columns );
+```
+
+### Registering Media Library Columns
+
+```php
+use function ArrayPress\RegisterCustomColumns\register_media_columns;
+
+/**
+ * Example for Media: Display File Size
+ *
+ * This example demonstrates how to display a custom column in the media table
+ * that shows the file size of each attachment. The file size is formatted using
+ * the appropriate helper method to ensure proper display.
+ */
+$custom_media_columns = [
+    'file_size' => [
+        'label'               => __( 'File Size', 'text-domain' ),
+        'display_callback'    => function ( $value, $attachment_id, $column ) {
+            return ColumnHelper::attachment_file_size( $attachment_id );
+        },
+        'position'            => 'after:author',
+        'permission_callback' => function () {
+            return current_user_can( 'upload_files' );
+        }
+    ],
+];
+
+register_media_columns( $custom_media_columns );
+```
+
+### Registering Media Library Columns
+
+```php
+use function ArrayPress\RegisterCustomColumns\register_user_columns;
+
+/**
+ * Example for Users: Display and Edit Points
+ *
+ * This example demonstrates how to display a custom column in the users table
+ * that shows the points for each user. The credits are editable inline with
+ * numeric input.
+ */
+$custom_user_columns = [
+    'points' => [
+        'label'               => __( 'Points', 'text-domain' ),
+        'meta_key'            => 'points',
+        'inline_edit'         => true,
+        'inline_attributes'   => [
+            'type' => 'number',
+        ],
+        'display_callback'    => function ( $value, $user_id, $column ) {
+            return ColumnHelper::badge( number_format_i18n( $value ), '#4caf50', '#ffffff' );
+        },
+        'permission_callback' => function () {
+            return current_user_can( 'edit_users' );
+        },
+    ],
+];
+
+register_user_columns( $custom_user_columns );
 ```
 
 ## Features Breakdown
