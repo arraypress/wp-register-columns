@@ -105,14 +105,15 @@ if ( ! class_exists( 'ColumnHelper' ) ) :
 		 */
 		public static function attachment_file_size( int $attachment_id ): string {
 			$file_path = get_attached_file( $attachment_id );
+			$default = __( 'N/A', 'text-domain' );
 
 			if ( $file_path && file_exists( $file_path ) ) {
 				$file_size = filesize( $file_path );
 
-				return $file_size ? sprintf( '<span>%s</span>', esc_html( size_format( $file_size ) ) ) : esc_html( __( 'N/A', 'text-domain' ) );
+				return $file_size ? sprintf( '<span>%s</span>', esc_html( size_format( $file_size ) ) ) : esc_html( $default );
 			}
 
-			return esc_html( __( 'N/A', 'text-domain' ) );
+			return esc_html( $default );
 		}
 
 		/**
@@ -188,7 +189,7 @@ if ( ! class_exists( 'ColumnHelper' ) ) :
 		 *
 		 * @return string The file type or 'unknown'.
 		 */
-		public static function get_file_type( int $attachment_id ): string {
+		public static function attachment_file_type( int $attachment_id ): string {
 			$file_path = get_attached_file( $attachment_id );
 
 			if ( $file_path && file_exists( $file_path ) ) {
@@ -207,14 +208,14 @@ if ( ! class_exists( 'ColumnHelper' ) ) :
 		 *
 		 * @return string|null The file extension or null if not found.
 		 */
-		public static function get_file_extension( int $attachment_id ): ?string {
+		public static function attachment_file_extension( int $attachment_id ): ?string {
 			$file_path = get_attached_file( $attachment_id );
 
 			if ( $file_path && file_exists( $file_path ) ) {
 				return pathinfo( $file_path, PATHINFO_EXTENSION );
 			}
 
-			return null;
+			return '–';
 		}
 
 
