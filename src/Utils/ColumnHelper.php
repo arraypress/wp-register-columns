@@ -82,7 +82,7 @@ if ( ! class_exists( 'ColumnHelper' ) ) :
 			$image_html = wp_get_attachment_image( $attachment_id, $size, false, $atts );
 
 			if ( ! $image_html ) {
-				return '';
+				return '&mdash;';
 			}
 
 			return sprintf( '<div class="thumbnail">%s</div>', $image_html );
@@ -119,7 +119,7 @@ if ( ! class_exists( 'ColumnHelper' ) ) :
 		 */
 		public static function attachment_file_size( int $attachment_id ): string {
 			$file_path = get_attached_file( $attachment_id );
-			$default   = __( 'N/A', 'text-domain' );
+			$default   = '&mdash;';
 
 			if ( $file_path && file_exists( $file_path ) ) {
 				$file_size = filesize( $file_path );
@@ -255,7 +255,7 @@ if ( ! class_exists( 'ColumnHelper' ) ) :
 		 *
 		 * @return string The formatted date or the default value.
 		 */
-		public static function format_date( string $value, string $default = '–' ): string {
+		public static function format_date( string $value, string $default = '&mdash;' ): string {
 			if ( ! empty( $value ) ) {
 				return esc_html( date_i18n( get_option( 'date_format' ), strtotime( $value ) ) );
 			}
@@ -271,7 +271,7 @@ if ( ! class_exists( 'ColumnHelper' ) ) :
 		 *
 		 * @return string The formatted boolean value or the default value.
 		 */
-		public static function format_boolean( $value, string $default = '–' ): string {
+		public static function format_boolean( $value, string $default = '&mdash;' ): string {
 			$boolean = filter_var( $value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE );
 
 			if ( is_null( $boolean ) ) {
@@ -367,7 +367,7 @@ if ( ! class_exists( 'ColumnHelper' ) ) :
 		 *
 		 * @return string The formatted date with color or the default value.
 		 */
-		public static function format_date_with_color( string $value, string $past_color = '#ff0000', string $active_color = '#a3b745', string $default = '–' ): string {
+		public static function format_date_with_color( string $value, string $past_color = '#ff0000', string $active_color = '#a3b745', string $default = '&mdash;' ): string {
 			if ( ! empty( $value ) ) {
 				$timestamp = strtotime( $value );
 				$color     = $timestamp < time() ? $past_color : $active_color;
@@ -379,7 +379,7 @@ if ( ! class_exists( 'ColumnHelper' ) ) :
 				);
 			}
 
-			return esc_html( $default );
+			return $default === '&mdash;' ? '&mdash;' : esc_html( $default );
 		}
 
 	}
