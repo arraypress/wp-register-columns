@@ -105,7 +105,7 @@ if ( ! class_exists( 'ColumnHelper' ) ) :
 		 */
 		public static function attachment_file_size( int $attachment_id ): string {
 			$file_path = get_attached_file( $attachment_id );
-			$default = __( 'N/A', 'text-domain' );
+			$default   = __( 'N/A', 'text-domain' );
 
 			if ( $file_path && file_exists( $file_path ) ) {
 				$file_size = filesize( $file_path );
@@ -213,6 +213,21 @@ if ( ! class_exists( 'ColumnHelper' ) ) :
 
 			if ( $file_path && file_exists( $file_path ) ) {
 				return pathinfo( $file_path, PATHINFO_EXTENSION );
+			}
+
+			return '–';
+		}
+
+		/**
+		 * Format numeric values.
+		 *
+		 * @param mixed $value The value to be formatted.
+		 *
+		 * @return string The formatted numeric value or '–'.
+		 */
+		public static function numeric( $value ): string {
+			if ( is_numeric( $value ) ) {
+				return number_format_i18n( (float) $value );
 			}
 
 			return '–';
