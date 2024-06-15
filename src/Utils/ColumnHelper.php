@@ -367,7 +367,7 @@ if ( ! class_exists( 'ColumnHelper' ) ) :
 		 *
 		 * @return string The formatted date with color or the default value.
 		 */
-		public static function format_date_with_color( string $value, string $past_color = '#ff0000', string $active_color = '#33f078', string $default = '–' ): string {
+		public static function format_date_with_color( string $value, string $past_color = '#ff0000', string $active_color = '#a3b745', string $default = '–' ): string {
 			if ( ! empty( $value ) ) {
 				$timestamp = strtotime( $value );
 				$color     = $timestamp < time() ? $past_color : $active_color;
