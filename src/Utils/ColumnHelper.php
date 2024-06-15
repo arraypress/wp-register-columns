@@ -195,7 +195,7 @@ if ( ! class_exists( 'ColumnHelper' ) ) :
 			if ( $file_path && file_exists( $file_path ) ) {
 				$file_type = wp_check_filetype( $file_path );
 
-				return $file_type['type'] ?? 'unknown';
+				return esc_html( $file_type['type'] ) ?? 'unknown';
 			}
 
 			return 'unknown';
@@ -212,7 +212,7 @@ if ( ! class_exists( 'ColumnHelper' ) ) :
 			$file_path = get_attached_file( $attachment_id );
 
 			if ( $file_path && file_exists( $file_path ) ) {
-				return pathinfo( $file_path, PATHINFO_EXTENSION );
+				return esc_html( pathinfo( $file_path, PATHINFO_EXTENSION ) );
 			}
 
 			return '–';
