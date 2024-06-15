@@ -76,7 +76,7 @@ if ( ! class_exists( 'ColumnHelper' ) ) :
 		 */
 		public static function image_thumbnail( int $attachment_id, $size = 'thumbnail', array $atts = [] ): string {
 			if ( ! $attachment_id ) {
-				return '';
+				return '&mdash;';
 			}
 
 			$image_html = wp_get_attachment_image( $attachment_id, $size, false, $atts );
