@@ -366,22 +366,6 @@ This will generate an icon with the 'dashicons-admin-users' class and the label 
 
 ---
 
-### Formatted Word Count
-
-Generates a formatted word count.
-
-```php
-ColumnHelper::formatted_word_count( int $word_count ): string
-```
-
-#### Example:
-```php
-ColumnHelper::formatted_word_count( 150 );
-```
-This will generate a formatted string showing the word count, e.g., '150 words'.
-
-```
-
 ## Contributions
 
 Contributions to this library are highly appreciated. Raise issues on GitHub or submit pull requests for bug fixes or new features. Share feedback and suggestions for improvements.
