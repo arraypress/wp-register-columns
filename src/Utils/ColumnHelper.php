@@ -181,5 +181,42 @@ if ( ! class_exists( 'ColumnHelper' ) ) :
 			);
 		}
 
+		/**
+		 * Get the file type (e.g., audio, video, etc.) of an attachment.
+		 *
+		 * @param int $attachment_id The attachment ID.
+		 *
+		 * @return string The file type or 'unknown'.
+		 */
+		public static function get_file_type( int $attachment_id ): string {
+			$file_path = get_attached_file( $attachment_id );
+
+			if ( $file_path && file_exists( $file_path ) ) {
+				$file_type = wp_check_filetype( $file_path );
+
+				return $file_type['type'] ?? 'unknown';
+			}
+
+			return 'unknown';
+		}
+
+		/**
+		 * Get the file extension of an attachment if the file is found.
+		 *
+		 * @param int $attachment_id The attachment ID.
+		 *
+		 * @return string|null The file extension or null if not found.
+		 */
+		public static function get_file_extension( int $attachment_id ): ?string {
+			$file_path = get_attached_file( $attachment_id );
+
+			if ( $file_path && file_exists( $file_path ) ) {
+				return pathinfo( $file_path, PATHINFO_EXTENSION );
+			}
+
+			return null;
+		}
+
+
 	}
 endif;
