@@ -254,6 +254,22 @@ Handle AJAX requests for inline editing and metadata updates seamlessly. This im
 
 ## Helper Functions
 
+### Color Circle
+
+Generates a color circle div with the specified hex color code.
+
+```php
+ColumnHelper::color_circle( string $color ): string
+```
+
+#### Example:
+```php
+ColumnHelper::color_circle( '#ff0000' );
+```
+This will generate a red color circle.
+
+---
+
 ### Image Thumbnail
 
 Generates an image thumbnail based on an attachment ID.
@@ -262,12 +278,108 @@ Generates an image thumbnail based on an attachment ID.
 ColumnHelper::image_thumbnail( int $attachment_id, $size = 'thumbnail', array $atts = [] ): string
 ```
 
+#### Example:
+```php
+ColumnHelper::image_thumbnail( 123, 'medium', [ 'class' => 'custom-class' ] );
+```
+This will generate an image thumbnail for attachment ID 123 with the size 'medium' and a custom class.
+
+---
+
+### Badge
+
+Generates a badge with specific colors.
+
+```php
+ColumnHelper::badge( string $text, string $bg_color, string $text_color ): string
+```
+
+#### Example:
+```php
+ColumnHelper::badge( 'New', '#4caf50', '#ffffff' );
+```
+This will generate a badge with the text 'New', a green background color, and white text color.
+
+---
+
+### Attachment File Size
+
+Gets the file size of an attachment and formats it.
+
+```php
+ColumnHelper::attachment_file_size( int $attachment_id ): string
+```
+
+#### Example:
+```php
+ColumnHelper::attachment_file_size( 123 );
+```
+This will display the file size of the attachment with ID 123 or 'N/A' if the file does not exist.
+
+---
+
+### Progress Bar
+
+Generates a progress bar with specified current and total values.
+
+```php
+ColumnHelper::progress_bar( int $current, int $total, string $bg_color = '#4caf50', string $text_color = '#ffffff' ): string
+```
+
+#### Example:
+```php
+ColumnHelper::progress_bar( 75, 100, '#2196f3', '#ffffff' );
+```
+This will generate a progress bar at 75% completion with a blue background and white text.
+
+---
+
+### Link
+
+Generates an HTML link with the specified URL, text, and target.
+
+```php
+ColumnHelper::link( string $url, string $text, string $target = '_self' ): string
+```
+
+#### Example:
+```php
+ColumnHelper::link( 'https://example.com', 'Visit Example', '_blank' );
+```
+This will generate a link that opens in a new tab.
+
+---
+
+### Icon Label
+
+Generates an icon with a label.
+
+```php
+ColumnHelper::icon_label( string $icon_class, string $label ): string
+```
+
+#### Example:
+```php
+ColumnHelper::icon_label( 'dashicons dashicons-admin-users', 'Admin' );
+```
+This will generate an icon with the 'dashicons-admin-users' class and the label 'Admin'.
+
+---
+
 ### Formatted Word Count
 
 Generates a formatted word count.
 
 ```php
 ColumnHelper::formatted_word_count( int $word_count ): string
+```
+
+#### Example:
+```php
+ColumnHelper::formatted_word_count( 150 );
+```
+This will generate a formatted string showing the word count, e.g., '150 words'.
+
 ```
 
 ## Contributions
