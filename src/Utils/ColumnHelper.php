@@ -229,7 +229,7 @@ if ( ! class_exists( 'ColumnHelper' ) ) :
 				return esc_html( pathinfo( $file_path, PATHINFO_EXTENSION ) );
 			}
 
-			return '–';
+			return '&mdash;';
 		}
 
 		/**
@@ -244,7 +244,7 @@ if ( ! class_exists( 'ColumnHelper' ) ) :
 				return number_format_i18n( (float) $value );
 			}
 
-			return '–';
+			return '&mdash;';
 		}
 
 		/**
