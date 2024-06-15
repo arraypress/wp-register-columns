@@ -46,15 +46,16 @@ use function ArrayPress\RegisterCustomColumns\register_post_columns;
  */
 $custom_post_columns = [
     'thumbnail' => [
-        'label'               => __( 'Thumbnail', 'text-domain' ),
+        'label'               => '' // Left blank on purpose,
         'display_callback'    => function ( $value, $post_id, $column ) {
             $thumbnail_id = get_post_thumbnail_id( $post_id );
-            return ColumnHelper::image_thumbnail( $thumbnail_id, [64, 64] );
+            return ColumnHelper::image_thumbnail( $thumbnail_id, [ 64, 64 ] );
         },
         'position'            => 'before:title',
         'permission_callback' => function () {
             return current_user_can( 'edit_posts' );
-        }
+        },
+        'width' => '64px'
     ],
 ];
 
@@ -158,19 +159,21 @@ use function ArrayPress\RegisterCustomColumns\register_user_columns;
  * Example for Users: Display and Edit Points
  *
  * This example demonstrates how to display a custom column in the users table
- * that shows the points for each user. The credits are editable inline with
+ * that shows the points for each user. The points are editable inline with
  * numeric input.
  */
 $custom_user_columns = [
     'points' => [
         'label'               => __( 'Points', 'text-domain' ),
         'meta_key'            => 'points',
+        'sortable'            => true,
+        'numeric'             => true,
         'inline_edit'         => true,
         'inline_attributes'   => [
             'type' => 'number',
         ],
         'display_callback'    => function ( $value, $user_id, $column ) {
-            return ColumnHelper::badge( number_format_i18n( $value ), '#4caf50', '#ffffff' );
+            return number_format_i18n( $value );
         },
         'permission_callback' => function () {
             return current_user_can( 'edit_users' );
@@ -344,7 +347,7 @@ ColumnHelper::link( string $url, string $text, string $target = '_self' ): strin
 
 #### Example:
 ```php
-ColumnHelper::link( 'https://example.com', 'Visit Example', '_blank' );
+ColumnHelper::link( 'https://example.com', __( 'Visit Example', 'text-domain' ), '_blank' );
 ```
 This will generate a link that opens in a new tab.
 
@@ -363,8 +366,6 @@ ColumnHelper::icon_label( string $icon_class, string $label ): string
 ColumnHelper::icon_label( 'dashicons dashicons-admin-users', 'Admin' );
 ```
 This will generate an icon with the 'dashicons-admin-users' class and the label 'Admin'.
-
----
 
 ## Contributions
 
