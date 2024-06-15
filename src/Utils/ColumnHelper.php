@@ -16,6 +16,8 @@
  * - Highlight text.
  * - Generate a tooltip.
  * - Generate a button.
+ * - Provide Yes/No options.
+ * - Format date values with color based on past or active status.
  *
  * @package         arraypress/register-custom-columns
  * @copyright       Copyright (c) 2024, ArrayPress Limited
@@ -36,6 +38,9 @@ use function esc_html;
 use function date_i18n;
 use function get_option;
 use function strtotime;
+use function filter_var;
+use const FILTER_VALIDATE_BOOLEAN;
+use const FILTER_NULL_ON_FAILURE;
 
 /**
  * Check if the class `Generate` is defined, and if not, define it.
@@ -277,6 +282,19 @@ if ( ! class_exists( 'ColumnHelper' ) ) :
 		}
 
 		/**
+		 * Get Yes/No options array.
+		 *
+		 * @return array The array of Yes/No options.
+		 */
+		public static function get_yes_no_options(): array {
+			return [
+				''    => __( 'None', 'text-domain' ),
+				'yes' => __( 'Yes', 'text-domain' ),
+				'no'  => __( 'No', 'text-domain' ),
+			];
+		}
+
+		/**
 		 * Highlight text with a background color.
 		 *
 		 * @param string $text  The text to highlight.
@@ -338,6 +356,31 @@ if ( ! class_exists( 'ColumnHelper' ) ) :
 				$attributes,
 				$sanitized_text
 			);
+		}
+
+		/**
+		 * Format date values with color based on past or active status.
+		 *
+		 * @param string $value        The date value to be formatted.
+		 * @param string $past_color   The hex color for past dates.
+		 * @param string $active_color The hex color for active dates.
+		 * @param string $default      The default value to display if the date is not available.
+		 *
+		 * @return string The formatted date with color or the default value.
+		 */
+		public static function format_date_with_color( string $value, string $past_color = '#ff0000', string $active_color = '#00ff00', string $default = '–' ): string {
+			if ( ! empty( $value ) ) {
+				$timestamp = strtotime( $value );
+				$color     = $timestamp < time() ? $past_color : $active_color;
+
+				return sprintf(
+					'<span style="color: %s;">%s</span>',
+					esc_attr( $color ),
+					esc_html( date_i18n( get_option( 'date_format' ), $timestamp ) )
+				);
+			}
+
+			return esc_html( $default );
 		}
 	}
 endif;
