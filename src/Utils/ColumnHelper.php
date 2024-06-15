@@ -10,6 +10,12 @@
  * - Generate a progress bar.
  * - Generate a link.
  * - Generate an icon with a label.
+ * - Format date values.
+ * - Format numeric values.
+ * - Format boolean values as Yes/No.
+ * - Highlight text.
+ * - Generate a tooltip.
+ * - Generate a button.
  *
  * @package         arraypress/register-custom-columns
  * @copyright       Copyright (c) 2024, ArrayPress Limited
@@ -27,6 +33,9 @@ use function esc_attr;
 use function sprintf;
 use function wp_get_attachment_image;
 use function esc_html;
+use function date_i18n;
+use function get_option;
+use function strtotime;
 
 /**
  * Check if the class `Generate` is defined, and if not, define it.
@@ -225,7 +234,7 @@ if ( ! class_exists( 'ColumnHelper' ) ) :
 		 *
 		 * @return string The formatted numeric value or '–'.
 		 */
-		public static function numeric( $value ): string {
+		public static function format_numeric( $value ): string {
 			if ( is_numeric( $value ) ) {
 				return number_format_i18n( (float) $value );
 			}
@@ -233,6 +242,102 @@ if ( ! class_exists( 'ColumnHelper' ) ) :
 			return '–';
 		}
 
+		/**
+		 * Format date values.
+		 *
+		 * @param string $value   The date value to be formatted.
+		 * @param string $default The default value to display if the date is not available.
+		 *
+		 * @return string The formatted date or the default value.
+		 */
+		public static function format_date( string $value, string $default = '–' ): string {
+			if ( ! empty( $value ) ) {
+				return esc_html( date_i18n( get_option( 'date_format' ), strtotime( $value ) ) );
+			}
 
+			return esc_html( $default );
+		}
+
+		/**
+		 * Format boolean values as Yes/No.
+		 *
+		 * @param mixed  $value   The value to be formatted.
+		 * @param string $default The default value to display if the value is not available.
+		 *
+		 * @return string The formatted boolean value or the default value.
+		 */
+		public static function format_boolean( $value, string $default = '–' ): string {
+			$boolean = filter_var( $value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE );
+
+			if ( is_null( $boolean ) ) {
+				return esc_html( $default );
+			}
+
+			return esc_html( $boolean ? __( 'Yes', 'text-domain' ) : __( 'No', 'text-domain' ) );
+		}
+
+		/**
+		 * Highlight text with a background color.
+		 *
+		 * @param string $text  The text to highlight.
+		 * @param string $color The background color for the highlight.
+		 *
+		 * @return string The HTML for the highlighted text.
+		 */
+		public static function highlight_text( string $text, string $color = '#ffff00' ): string {
+			$sanitized_color = esc_attr( $color );
+			$sanitized_text  = esc_html( $text );
+
+			return sprintf(
+				'<span style="background-color: %s;">%s</span>',
+				$sanitized_color,
+				$sanitized_text
+			);
+		}
+
+		/**
+		 * Generate a tooltip.
+		 *
+		 * @param string $text    The text to display in the tooltip.
+		 * @param string $tooltip The tooltip text.
+		 *
+		 * @return string The HTML for the tooltip.
+		 */
+		public static function tooltip( string $text, string $tooltip ): string {
+			$sanitized_text    = esc_html( $text );
+			$sanitized_tooltip = esc_attr( $tooltip );
+
+			return sprintf(
+				'<span title="%s">%s</span>',
+				$sanitized_tooltip,
+				$sanitized_text
+			);
+		}
+
+		/**
+		 * Generate a button.
+		 *
+		 * @param string $text The button text.
+		 * @param string $url  The URL the button links to.
+		 * @param array  $atts Additional attributes for the button.
+		 *
+		 * @return string The HTML for the button.
+		 */
+		public static function button( string $text, string $url, array $atts = [] ): string {
+			$sanitized_text = esc_html( $text );
+			$sanitized_url  = esc_url( $url );
+			$attributes     = '';
+
+			foreach ( $atts as $key => $value ) {
+				$attributes .= sprintf( ' %s="%s"', esc_attr( $key ), esc_attr( $value ) );
+			}
+
+			return sprintf(
+				'<a href="%s" class="button"%s>%s</a>',
+				$sanitized_url,
+				$attributes,
+				$sanitized_text
+			);
+		}
 	}
 endif;
