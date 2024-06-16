@@ -50,6 +50,11 @@ if ( ! class_exists( 'ColumnHelper' ) ) :
 	class ColumnHelper {
 
 		/**
+		 * The HTML entity for an em dash.
+		 */
+		const MDASH = '&mdash;';
+
+		/**
 		 * Generate a color circle div with the actual color in it.
 		 *
 		 * @param string $color The hex color code.
@@ -76,13 +81,13 @@ if ( ! class_exists( 'ColumnHelper' ) ) :
 		 */
 		public static function image_thumbnail( int $attachment_id, $size = 'thumbnail', array $atts = [] ): string {
 			if ( ! $attachment_id ) {
-				return '&mdash;';
+				return self::MDASH;
 			}
 
 			$image_html = wp_get_attachment_image( $attachment_id, $size, false, $atts );
 
 			if ( ! $image_html ) {
-				return '&mdash;';
+				return self::MDASH;
 			}
 
 			return sprintf( '<div class="thumbnail">%s</div>', $image_html );
@@ -119,7 +124,7 @@ if ( ! class_exists( 'ColumnHelper' ) ) :
 		 */
 		public static function attachment_file_size( int $attachment_id ): string {
 			$file_path = get_attached_file( $attachment_id );
-			$default   = '&mdash;';
+			$default   = self::MDASH;
 
 			if ( $file_path && file_exists( $file_path ) ) {
 				$file_size = filesize( $file_path );
@@ -229,7 +234,7 @@ if ( ! class_exists( 'ColumnHelper' ) ) :
 				return esc_html( pathinfo( $file_path, PATHINFO_EXTENSION ) );
 			}
 
-			return '&mdash;';
+			return self::MDASH;
 		}
 
 		/**
@@ -244,7 +249,7 @@ if ( ! class_exists( 'ColumnHelper' ) ) :
 				return number_format_i18n( (float) $value );
 			}
 
-			return '&mdash;';
+			return self::MDASH;
 		}
 
 		/**
@@ -255,7 +260,7 @@ if ( ! class_exists( 'ColumnHelper' ) ) :
 		 *
 		 * @return string The formatted date or the default value.
 		 */
-		public static function format_date( string $value, string $default = '&mdash;' ): string {
+		public static function format_date( string $value, string $default = self::MDASH ): string {
 			if ( ! empty( $value ) ) {
 				return esc_html( date_i18n( get_option( 'date_format' ), strtotime( $value ) ) );
 			}
@@ -271,7 +276,7 @@ if ( ! class_exists( 'ColumnHelper' ) ) :
 		 *
 		 * @return string The formatted boolean value or the default value.
 		 */
-		public static function format_boolean( $value, string $default = '&mdash;' ): string {
+		public static function format_boolean( $value, string $default = self::MDASH ): string {
 			$boolean = filter_var( $value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE );
 
 			if ( is_null( $boolean ) ) {
@@ -345,8 +350,10 @@ if ( ! class_exists( 'ColumnHelper' ) ) :
 			$sanitized_url  = esc_url( $url );
 			$attributes     = '';
 
-			foreach ( $atts as $key => $value ) {
-				$attributes .= sprintf( ' %s="%s"', esc_attr( $key ), esc_attr( $value ) );
+			if ( $atts ) {
+				foreach ( $atts as $key => $value ) {
+					$attributes .= sprintf( ' %s="%s"', esc_attr( $key ), esc_attr( $value ) );
+				}
 			}
 
 			return sprintf(
@@ -367,7 +374,7 @@ if ( ! class_exists( 'ColumnHelper' ) ) :
 		 *
 		 * @return string The formatted date with color or the default value.
 		 */
-		public static function format_date_with_color( string $value, string $past_color = '#ff0000', string $active_color = '#a3b745', string $default = '&mdash;' ): string {
+		public static function format_date_with_color( string $value, string $past_color = '#ff0000', string $active_color = '#a3b745', string $default = self::MDASH ): string {
 			if ( ! empty( $value ) ) {
 				$timestamp = strtotime( $value );
 				$color     = $timestamp < time() ? $past_color : $active_color;
@@ -379,7 +386,7 @@ if ( ! class_exists( 'ColumnHelper' ) ) :
 				);
 			}
 
-			return $default === '&mdash;' ? '&mdash;' : esc_html( $default );
+			return $default === self::MDASH ? self::MDASH : esc_html( $default );
 		}
 
 	}
