@@ -36,12 +36,13 @@ if ( ! class_exists( 'BaseColumns' ) ) :
 		 * @param string  $object_type    The object type to register columns for.
 		 * @param string  $object_subtype The object subtype to register columns for.
 		 * @param ?string $custom_filter  Optional custom filter to use in hooks.
+		 * @param array   $keys_to_remove Optional array of column keys to remove. Default empty array.
 		 *
 		 * @return static The instance of the subclass.
 		 * @throws Exception If an invalid or empty array is passed.
 		 */
-		public static function createInstance( array $columns, string $object_type, string $object_subtype, ?string $custom_filter = null ) {
-			$instance = new static( $columns, $object_type, $object_subtype, $custom_filter );
+		public static function createInstance( array $columns, string $object_type, string $object_subtype, ?string $custom_filter = null, array $keys_to_remove = [] ) {
+			$instance = new static( $columns, $object_type, $object_subtype, $custom_filter, $keys_to_remove );
 			$instance->load_hooks( $columns );
 
 			return $instance;
@@ -54,10 +55,11 @@ if ( ! class_exists( 'BaseColumns' ) ) :
 		 * @param string  $object_type    The object type to register columns for.
 		 * @param string  $object_subtype The object subtype to register columns for.
 		 * @param ?string $custom_filter  Optional custom filter to use in hooks.
+		 * @param array   $keys_to_remove Optional array of column keys to remove. Default empty array.
 		 *
 		 * @throws Exception If an invalid or empty array is passed.
 		 */
-		protected function __construct( array $columns, string $object_type, string $object_subtype, ?string $custom_filter ) {
+		protected function __construct( array $columns, string $object_type, string $object_subtype, ?string $custom_filter = null, array $keys_to_remove = [] ) {
 			if ( empty( $object_type ) ) {
 				throw new Exception( 'Invalid object type provided.' );
 			}
@@ -70,11 +72,12 @@ if ( ! class_exists( 'BaseColumns' ) ) :
 				throw new Exception( 'Invalid or empty columns array provided.' );
 			}
 
-			parent::__construct( $columns, $object_type, $object_subtype );
+			parent::__construct( $columns, $object_type, $object_subtype, $keys_to_remove );
 
 			// Set custom filter if provided
 			$this->custom_filter = $custom_filter ?? null;
 		}
+
 
 		/**
 		 * Load the necessary hooks for custom columns.

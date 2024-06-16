@@ -35,16 +35,17 @@ if ( ! class_exists( 'ColumnsFactory' ) ) :
 		 * @param string      $object_type    The object type (e.g., 'post').
 		 * @param string|null $object_subtype The object subtype (e.g., 'page').
 		 * @param string|null $custom_filter  The custom filter to use in hooks.
+		 * @param array       $keys_to_remove Optional. Array of column keys to remove. Default empty array.
 		 *
 		 * @return RegisterColumns
 		 * @throws Exception
 		 */
-		public static function getInstance( string $class_name, array $columns, string $object_type, string $object_subtype = null, ?string $custom_filter = null ): RegisterColumns {
+		public static function getInstance( string $class_name, array $columns, string $object_type, string $object_subtype = null, ?string $custom_filter = null, array $keys_to_remove = [] ): RegisterColumns {
 			$object_subtype = $object_subtype ?? $object_type;
 			$key            = self::generateKey( $class_name, $object_type, $object_subtype, $custom_filter );
 
 			if ( ! isset( self::$instances[ $key ] ) ) {
-				self::$instances[ $key ] = self::createInstance( $class_name, $columns, $object_type, $object_subtype, $custom_filter );
+				self::$instances[ $key ] = self::createInstance( $class_name, $columns, $object_type, $object_subtype, $custom_filter, $keys_to_remove );
 			} else {
 				self::$instances[ $key ]->add_columns( $columns );
 			}
@@ -60,20 +61,23 @@ if ( ! class_exists( 'ColumnsFactory' ) ) :
 		 * @param string      $object_type    The object type (e.g., 'post').
 		 * @param string      $object_subtype The object subtype (e.g., 'page').
 		 * @param string|null $custom_filter  The custom filter to use in hooks.
+		 * @param array       $keys_to_remove Optional. Array of column keys to remove. Default empty array.
 		 *
 		 * @return RegisterColumns
 		 * @throws InvalidArgumentException
 		 */
-		protected static function createInstance( string $class_name, array $columns, string $object_type, string $object_subtype, ?string $custom_filter ): RegisterColumns {
+		protected static function createInstance( string $class_name, array $columns, string $object_type, string $object_subtype, ?string $custom_filter, array $keys_to_remove ): RegisterColumns {
 			if ( class_exists( $class_name ) ) {
 				$reflection  = new ReflectionClass( $class_name );
 				$constructor = $reflection->getConstructor();
 				$num_params  = $constructor ? $constructor->getNumberOfParameters() : 0;
 
-				if ( $num_params > 3 ) {
+				if ( $num_params > 4 ) {
+					return $class_name::createInstance( $columns, $object_type, $object_subtype, $custom_filter, $keys_to_remove );
+				} elseif ( $num_params > 3 ) {
 					return $class_name::createInstance( $columns, $object_type, $object_subtype, $custom_filter );
 				} else {
-					return $class_name::createInstance( $columns );
+					return $class_name::createInstance( $columns, $object_type, $object_subtype );
 				}
 			} else {
 				throw new InvalidArgumentException( "Unknown class: $class_name" );

@@ -87,7 +87,7 @@ if ( ! class_exists( 'Discounts' ) ) :
 		 */
 		public function query_clauses( array $clauses, \EDD\Database\Query $base ): array {
 
-			// 
+			// Bail if not admin
 			if ( ! is_admin() ) {
 				return $clauses;
 			}

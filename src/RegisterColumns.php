@@ -82,6 +82,11 @@ if ( ! class_exists( 'RegisterColumns' ) ):
 		protected ?string $custom_filter;
 
 		/**
+		 * @var array $keys_to_remove Array of column keys to remove from being registered.
+		 */
+		protected array $keys_to_remove = [];
+
+		/**
 		 * Array of types and their corresponding sanitize callbacks.
 		 *
 		 * @var array $sanitize_callbacks
@@ -100,12 +105,14 @@ if ( ! class_exists( 'RegisterColumns' ) ):
 		 * @param array  $columns        Custom columns configuration.
 		 * @param string $object_type    Metadata type (e.g., 'user', 'post').
 		 * @param string $object_subtype Metadata subtype (e.g., 'page').
+		 * @param array  $keys_to_remove Optional. Array of column keys to remove. Default empty array.
 		 *
 		 * @throws Exception If a column key is invalid.
 		 */
-		public function __construct( array $columns, string $object_type, string $object_subtype ) {
+		public function __construct( array $columns, string $object_type, string $object_subtype, array $keys_to_remove = [] ) {
 			$this->set_object_type( $object_type );
 			$this->set_object_subtype( $object_subtype );
+			$this->set_keys_to_remove( $keys_to_remove );
 			$this->add_columns( $columns );
 		}
 
@@ -140,6 +147,17 @@ if ( ! class_exists( 'RegisterColumns' ) ):
 		 */
 		public function set_custom_filter( ?string $custom_filter ): void {
 			$this->custom_filter = $custom_filter;
+		}
+
+		/**
+		 * Set the array of column keys to remove from being registered.
+		 *
+		 * @param array $keys Array of column keys to remove.
+		 *
+		 * @return void
+		 */
+		public function set_keys_to_remove( array $keys ): void {
+			$this->keys_to_remove = $keys;
 		}
 
 		/**
@@ -228,6 +246,9 @@ if ( ! class_exists( 'RegisterColumns' ) ):
 		public function register_columns( array $columns ): array {
 			$custom_columns = self::get_columns( $this->object_type, $this->object_subtype );
 
+			// Remove specified keys from existing columns
+			$columns = $this->remove_keys_from_columns( $columns );
+
 			foreach ( $custom_columns as $key => $column ) {
 				if ( ! $this->check_column_permission( $column ) ) {
 					continue;
@@ -243,6 +264,25 @@ if ( ! class_exists( 'RegisterColumns' ) ):
 					$columns = Utils::insert_before( $columns, $reference_column, [ $key => $label ] );
 				} else {
 					$columns[ $key ] = $label;
+				}
+			}
+
+			return $columns;
+		}
+
+		/**
+		 * Remove specified keys from the columns array.
+		 *
+		 * This method verifies if the keys exist before attempting to remove them.
+		 *
+		 * @param array $columns Array of existing columns.
+		 *
+		 * @return array The columns array with specified keys removed.
+		 */
+		protected function remove_keys_from_columns( array $columns ): array {
+			foreach ( $this->keys_to_remove as $key ) {
+				if ( array_key_exists( $key, $columns ) ) {
+					unset( $columns[ $key ] );
 				}
 			}
 

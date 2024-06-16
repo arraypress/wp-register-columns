@@ -88,6 +88,7 @@ if ( ! class_exists( 'Orders' ) ) :
 		public function query_clauses( array $clauses, \EDD\Database\Query $base ): array {
 			global $wpdb;
 
+			// Bail if not admin
 			if ( ! is_admin() ) {
 				return $clauses;
 			}

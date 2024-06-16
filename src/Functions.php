@@ -41,18 +41,19 @@ if ( ! function_exists( 'register_columns' ) ) {
 	 * @param string        $object_class   The class to use for registering columns.
 	 * @param string        $primary_type   The primary object type (e.g., 'post', 'user').
 	 * @param string|null   $custom_filter  Custom filter to use in hooks.
+	 * @param array         $keys_to_remove Array of column keys to remove.
 	 * @param callable|null $error_callback Callback for handling errors.
 	 *
 	 * @return void|null
 	 */
-	function register_columns( $object_types, array $columns, string $object_class, string $primary_type, ?string $custom_filter = null, ?callable $error_callback = null ) {
+	function register_columns( $object_types, array $columns, string $object_class, string $primary_type, ?string $custom_filter = null, array $keys_to_remove = [], ?callable $error_callback = null ) {
 		try {
 			if ( is_string( $object_types ) ) {
 				$object_types = [ $object_types ];
 			}
 
 			foreach ( $object_types as $object_type ) {
-				ColumnsFactory::getInstance( $object_class, $columns, $primary_type, $object_type, $custom_filter );
+				ColumnsFactory::getInstance( $object_class, $columns, $primary_type, $object_type, $custom_filter, $keys_to_remove );
 			}
 		} catch ( Exception $e ) {
 			if ( is_callable( $error_callback ) ) {
@@ -69,12 +70,13 @@ if ( ! function_exists( 'register_post_columns' ) ) {
 	 * @param array|string  $post_types     Array or string of post types.
 	 * @param array         $columns        Array of custom columns configuration.
 	 * @param string|null   $custom_filter  Custom filter to use in hooks.
+	 * @param array         $keys_to_remove Array of column keys to remove.
 	 * @param callable|null $error_callback Callback for handling errors.
 	 *
 	 * @return void|null
 	 */
-	function register_post_columns( $post_types, array $columns, ?string $custom_filter = null, ?callable $error_callback = null ) {
-		register_columns( $post_types, $columns, Post::class, 'post', $custom_filter, $error_callback );
+	function register_post_columns( $post_types, array $columns, ?string $custom_filter = null, array $keys_to_remove = [], ?callable $error_callback = null ) {
+		register_columns( $post_types, $columns, Post::class, 'post', $custom_filter, $keys_to_remove, $error_callback );
 	}
 }
 
@@ -83,12 +85,13 @@ if ( ! function_exists( 'register_user_columns' ) ) {
 	 * Helper function to register custom columns for users.
 	 *
 	 * @param array         $columns        Array of custom columns configuration.
+	 * @param array         $keys_to_remove Array of column keys to remove.
 	 * @param callable|null $error_callback Callback for handling errors.
 	 *
 	 * @return void|null
 	 */
-	function register_user_columns( array $columns, ?callable $error_callback = null ) {
-		register_columns( 'user', $columns, User::class, 'user', null, $error_callback );
+	function register_user_columns( array $columns, array $keys_to_remove = [], ?callable $error_callback = null ) {
+		register_columns( 'user', $columns, User::class, 'user', null, $keys_to_remove, $error_callback );
 	}
 }
 
@@ -98,12 +101,13 @@ if ( ! function_exists( 'register_taxonomy_columns' ) ) {
 	 *
 	 * @param array|string  $taxonomies     Array or string of taxonomies.
 	 * @param array         $columns        Array of custom columns configuration.
+	 * @param array         $keys_to_remove Array of column keys to remove.
 	 * @param callable|null $error_callback Callback for handling errors.
 	 *
 	 * @return void|null
 	 */
-	function register_taxonomy_columns( $taxonomies, array $columns, ?callable $error_callback = null ) {
-		register_columns( $taxonomies, $columns, Taxonomy::class, 'term', null, $error_callback );
+	function register_taxonomy_columns( $taxonomies, array $columns, array $keys_to_remove = [], ?callable $error_callback = null ) {
+		register_columns( $taxonomies, $columns, Taxonomy::class, 'term', null, $keys_to_remove, $error_callback );
 	}
 }
 
@@ -112,12 +116,13 @@ if ( ! function_exists( 'register_media_columns' ) ) {
 	 * Helper function to register custom columns for media.
 	 *
 	 * @param array         $columns        Array of custom columns configuration.
+	 * @param array         $keys_to_remove Array of column keys to remove.
 	 * @param callable|null $error_callback Callback for handling errors.
 	 *
 	 * @return void|null
 	 */
-	function register_media_columns( array $columns, ?callable $error_callback = null ) {
-		register_columns( 'attachment', $columns, Media::class, 'post', null, $error_callback );
+	function register_media_columns( array $columns, array $keys_to_remove = [], ?callable $error_callback = null ) {
+		register_columns( 'attachment', $columns, Media::class, 'post', null, $keys_to_remove, $error_callback );
 	}
 }
 
@@ -126,12 +131,13 @@ if ( ! function_exists( 'register_comment_columns' ) ) {
 	 * Helper function to register custom columns for comments.
 	 *
 	 * @param array         $columns        Array of custom columns configuration.
+	 * @param array         $keys_to_remove Array of column keys to remove.
 	 * @param callable|null $error_callback Callback for handling errors.
 	 *
 	 * @return void|null
 	 */
-	function register_comment_columns( array $columns, ?callable $error_callback = null ) {
-		register_columns( 'comment', $columns, Comments::class, 'comment', null, $error_callback );
+	function register_comment_columns( array $columns, array $keys_to_remove = [], ?callable $error_callback = null ) {
+		register_columns( 'comment', $columns, Comments::class, 'comment', null, $keys_to_remove, $error_callback );
 	}
 }
 
@@ -141,12 +147,13 @@ if ( ! function_exists( 'register_edd_columns' ) ) {
 	 *
 	 * @param string        $type           The type of EDD columns to register.
 	 * @param array         $columns        Array of custom columns configuration.
+	 * @param array         $keys_to_remove Array of column keys to remove.
 	 * @param callable|null $error_callback Callback for handling errors.
 	 *
 	 * @return void|null
 	 * @throws Exception If the type or class is invalid.
 	 */
-	function register_edd_columns( string $type, array $columns, ?callable $error_callback = null ) {
+	function register_edd_columns( string $type, array $columns, array $keys_to_remove = [], ?callable $error_callback = null ) {
 		static $edd_column_mapping = [
 			'discounts' => [
 				'class'          => Discounts::class,
@@ -158,7 +165,7 @@ if ( ! function_exists( 'register_edd_columns' ) ) {
 				'object_type'    => 'edd_customer',
 				'object_subtype' => 'edd_customer',
 			],
-			'orders' => [
+			'orders'    => [
 				'class'          => Orders::class,
 				'object_type'    => 'edd_order',
 				'object_subtype' => 'edd_order',
@@ -182,6 +189,7 @@ if ( ! function_exists( 'register_edd_columns' ) ) {
 				$mapping['class'],
 				$mapping['object_type'],
 				null,
+				$keys_to_remove,
 				$error_callback
 			);
 		} catch ( Exception $e ) {
