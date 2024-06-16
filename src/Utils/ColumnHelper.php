@@ -94,6 +94,21 @@ if ( ! class_exists( 'ColumnHelper' ) ) :
 		}
 
 		/**
+		 * Generate an image thumbnail based on a post ID.
+		 *
+		 * @param int   $post_id The post ID.
+		 * @param mixed $size    The image size. Default is 'thumbnail'. Can be a string or an array of width and height.
+		 * @param array $atts    Optional. Additional attributes to pass to the wp_get_attachment_image function.
+		 *
+		 * @return string The HTML for the image thumbnail.
+		 */
+		public static function post_thumbnail( int $post_id, $size = 'thumbnail', array $atts = [] ): string {
+			$thumbnail_id = get_post_thumbnail_id( $post_id );
+
+			return self::image_thumbnail( $thumbnail_id, $size, $atts );
+		}
+
+		/**
 		 * Generate a badge with specific colors.
 		 *
 		 * @param string $text       The text to display inside the badge.
