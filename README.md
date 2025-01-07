@@ -24,13 +24,13 @@ This library is a developer tool, not a WordPress plugin, so it needs to be incl
 You can install it using Composer:
 
 ```bash
-composer require arraypress/register-custom-columns
+composer require arraypress/wp-register-columns
 ```
 
 ## Basic Usage
 
 ```php
-use ArrayPress\RegisterCustomColumns\Utils\ColumnHelper;
+use ArrayPress\WP\Register\Columns\Utils\ColumnHelper;
 ```
 
 ### Registering Post Columns

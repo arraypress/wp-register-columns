@@ -21,36 +21,34 @@
 
 declare( strict_types=1 );
 
-namespace ArrayPress\WP\Register\Columns\EDD;
+namespace ArrayPress\WP\Register\Columns\Core;
 
 use ArrayPress\WP\Register\Columns\Abstracts\BaseColumns;
+use function add_action;
+use function add_filter;
 
 /**
- * Easy Digital Downloads Customer class for custom columns.
+ * User class for custom user columns.
  *
- * Provides a custom table view for media,
+ * Extends the BaseColumns class to provide a custom table view for users,
  * including support for custom columns, sorting, and actions.
  */
-class Customers extends BaseColumns {
+class User extends BaseColumns {
 
 	/**
 	 * Load the necessary hooks for custom columns.
 	 *
-	 * Registers WordPress hooks for adding, sorting, and displaying custom customer columns.
+	 * Registers WordPress hooks for adding, sorting, and displaying custom user columns.
 	 *
-	 * @param array $columns Array of columns to be registered.
+	 * @param array $columns An associative array of custom columns with their configurations.
 	 *
 	 * @return void
 	 */
 	protected function load_hooks( array $columns ): void {
-		add_filter( 'edd_report_customer_columns', [ $this, 'register_columns' ] );
-		add_filter( "manage_edit-edd_customer_sortable_columns", [ $this, 'register_sortable_columns' ] );
-
-		foreach ( $columns as $column_name => $column_config ) {
-			add_filter( "edd_customers_column_{$column_name}", function ( $value, $id ) use ( $column_name ) {
-				return $this->render_column_content( (string) $value, (string) $column_name, (int) $id );
-			}, 10, 2 );
-		}
+		add_filter( 'manage_users_columns', [ $this, 'register_columns' ] );
+		add_filter( 'manage_users_sortable_columns', [ $this, 'register_sortable_columns' ] );
+		add_action( 'manage_users_custom_column', [ $this, 'render_column_content' ], 10, 3 );
+		add_action( 'pre_get_users', [ $this, 'sort_items' ] );
 	}
 
 }

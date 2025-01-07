@@ -1,7 +1,8 @@
 {
-  "name": "arraypress/register-custom-columns",
+  "name": "arraypress/wp-register-columns",
+  "version": "1.0.0",
   "description": "Easily register custom columns for any WordPress table.",
-  "homepage": "https://github.com/arraypress/register-custom-columns/",
+  "homepage": "https://github.com/arraypress/wp-register-columns/",
   "type": "library",
   "license": "GPL-2.0-or-later",
   "authors": [
@@ -10,21 +11,41 @@
       "homepage": "https://arraypress.com/"
     }
   ],
-  "config": {
-    "optimize-autoloader": true,
-    "sort-packages": true
-  },
   "require": {
-    "php": "^7.4 || ^8.0"
+    "php": ">=7.4"
   },
   "autoload": {
     "psr-4": {
-      "ArrayPress\\RegisterCustomColumns\\": "src/"
+      "ArrayPress\\WP\\Register\\Columns\\": "src/"
     },
     "files": [
-      "src/Functions.php"
+      "src/Utilities.php"
     ]
   },
+  "config": {
+    "optimize-autoloader": true,
+    "sort-packages": true,
+    "preferred-install": "dist"
+  },
   "minimum-stability": "dev",
-  "prefer-stable": true
+  "prefer-stable": true,
+  "support": {
+    "issues": "https://github.com/arraypress/wp-register-columns/issues",
+    "source": "https://github.com/arraypress/wp-register-columns"
+  },
+  "keywords": [
+    "wordpress",
+    "pages",
+    "registration",
+    "templates",
+    "versioning",
+    "page-management",
+    "backup",
+    "restore",
+    "wp-admin",
+    "post-types",
+    "meta",
+    "relationships",
+    "hierarchy"
+  ]
 }

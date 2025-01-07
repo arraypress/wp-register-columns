@@ -17,20 +17,15 @@
  * @autor       David Sherlock
  */
 
-namespace ArrayPress\RegisterCustomColumns;
-
-use ArrayPress\RegisterCustomColumns\EDD\Customers;
-use ArrayPress\RegisterCustomColumns\EDD\Discounts;
-use ArrayPress\RegisterCustomColumns\EDD\Orders;
-use ArrayPress\RegisterCustomColumns\WordPress\Comments;
-use ArrayPress\RegisterCustomColumns\WordPress\Media;
-use ArrayPress\RegisterCustomColumns\WordPress\Post;
-use ArrayPress\RegisterCustomColumns\WordPress\Taxonomy;
-use ArrayPress\RegisterCustomColumns\WordPress\User;
-use Exception;
-use function call_user_func;
-use function function_exists;
-use function is_callable;
+use ArrayPress\WP\Register\Columns\Core\Comments;
+use ArrayPress\WP\Register\Columns\Core\Media;
+use ArrayPress\WP\Register\Columns\Core\Post;
+use ArrayPress\WP\Register\Columns\Core\Taxonomy;
+use ArrayPress\WP\Register\Columns\Core\User;
+use ArrayPress\WP\Register\Columns\EDD\Customers;
+use ArrayPress\WP\Register\Columns\EDD\Discounts;
+use ArrayPress\WP\Register\Columns\EDD\Orders;
+use ArrayPress\WP\Register\Columns\Factory;
 
 if ( ! function_exists( 'register_columns' ) ) {
 	/**
@@ -53,7 +48,7 @@ if ( ! function_exists( 'register_columns' ) ) {
 			}
 
 			foreach ( $object_types as $object_type ) {
-				ColumnsFactory::getInstance( $object_class, $columns, $primary_type, $object_type, $custom_filter, $keys_to_remove );
+				Factory::get_instance( $object_class, $columns, $primary_type, $object_type, $custom_filter, $keys_to_remove );
 			}
 		} catch ( Exception $e ) {
 			if ( is_callable( $error_callback ) ) {
@@ -141,7 +136,7 @@ if ( ! function_exists( 'register_comment_columns' ) ) {
 	}
 }
 
-if ( ! function_exists( 'register_edd_columns' ) ) {
+if ( ! function_exists( 'edd_register_custom_columns' ) ) {
 	/**
 	 * Helper function to register custom columns for EDD.
 	 *
@@ -153,7 +148,7 @@ if ( ! function_exists( 'register_edd_columns' ) ) {
 	 * @return void|null
 	 * @throws Exception If the type or class is invalid.
 	 */
-	function register_edd_columns( string $type, array $columns, array $keys_to_remove = [], ?callable $error_callback = null ) {
+	function edd_register_custom_columns( string $type, array $columns, array $keys_to_remove = [], ?callable $error_callback = null ) {
 		static $edd_column_mapping = [
 			'discounts' => [
 				'class'          => Discounts::class,
