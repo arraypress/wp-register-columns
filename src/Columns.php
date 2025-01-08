@@ -62,7 +62,7 @@ class Columns {
 	protected array $keys_to_remove = [];
 
 	/**
-	 * Array of types and their corresponding sanitize callbacks.
+	 * Array of types and their corresponding to sanitize callbacks.
 	 *
 	 * @var array $sanitize_callbacks
 	 */
