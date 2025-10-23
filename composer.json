@@ -1,7 +1,7 @@
 {
   "name": "arraypress/wp-register-columns",
-  "version": "1.0.0",
-  "description": "Easily register custom columns for any WordPress table.",
+  "version": "2.0.0",
+  "description": "Lightweight library for registering custom columns in WordPress admin tables.",
   "homepage": "https://github.com/arraypress/wp-register-columns/",
   "type": "library",
   "license": "GPL-2.0-or-later",
@@ -16,10 +16,10 @@
   },
   "autoload": {
     "psr-4": {
-      "ArrayPress\\WP\\Register\\Columns\\": "src/"
+      "ArrayPress\\WP\\RegisterColumns\\": "src/"
     },
     "files": [
-      "src/Utilities.php"
+      "src/Functions.php"
     ]
   },
   "config": {
@@ -35,17 +35,14 @@
   },
   "keywords": [
     "wordpress",
-    "pages",
-    "registration",
-    "templates",
-    "versioning",
-    "page-management",
-    "backup",
-    "restore",
-    "wp-admin",
-    "post-types",
-    "meta",
-    "relationships",
-    "hierarchy"
+    "columns",
+    "admin",
+    "custom-columns",
+    "table-columns",
+    "posts",
+    "users",
+    "taxonomies",
+    "comments",
+    "media"
   ]
 }
