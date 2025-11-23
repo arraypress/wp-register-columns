@@ -14,7 +14,7 @@
 
 declare( strict_types=1 );
 
-namespace ArrayPress\WP\RegisterColumns\Utils;
+namespace ArrayPress\RegisterColumns\Utils;
 
 /**
  * Class Arr

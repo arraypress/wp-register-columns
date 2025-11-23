@@ -14,11 +14,11 @@
 
 declare( strict_types=1 );
 
-use ArrayPress\WP\RegisterColumns\Tables\Post;
-use ArrayPress\WP\RegisterColumns\Tables\User;
-use ArrayPress\WP\RegisterColumns\Tables\Taxonomy;
-use ArrayPress\WP\RegisterColumns\Tables\Comment;
-use ArrayPress\WP\RegisterColumns\Tables\Media;
+use ArrayPress\RegisterColumns\Tables\Post;
+use ArrayPress\RegisterColumns\Tables\User;
+use ArrayPress\RegisterColumns\Tables\Taxonomy;
+use ArrayPress\RegisterColumns\Tables\Comment;
+use ArrayPress\RegisterColumns\Tables\Media;
 
 if ( ! function_exists( 'register_post_columns' ) ) {
 	/**

@@ -15,10 +15,10 @@
 
 declare( strict_types=1 );
 
-namespace ArrayPress\WP\RegisterColumns\Abstracts;
+namespace ArrayPress\RegisterColumns\Abstracts;
 
-use ArrayPress\WP\RegisterColumns\Traits\Request;
-use ArrayPress\WP\RegisterColumns\Utils\Arr;
+use ArrayPress\RegisterColumns\Traits\Request;
+use ArrayPress\RegisterColumns\Utils\Arr;
 use Exception;
 
 /**

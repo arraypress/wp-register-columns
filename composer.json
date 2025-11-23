@@ -16,7 +16,7 @@
   },
   "autoload": {
     "psr-4": {
-      "ArrayPress\\WP\\RegisterColumns\\": "src/"
+      "ArrayPress\\RegisterColumns\\": "src/"
     },
     "files": [
       "src/Functions.php"

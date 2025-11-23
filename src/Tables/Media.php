@@ -15,9 +15,9 @@
 
 declare( strict_types=1 );
 
-namespace ArrayPress\WP\RegisterColumns\Tables;
+namespace ArrayPress\RegisterColumns\Tables;
 
-use ArrayPress\WP\RegisterColumns\Abstracts\Columns;
+use ArrayPress\RegisterColumns\Abstracts\Columns;
 
 /**
  * Class Media

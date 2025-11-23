@@ -13,14 +13,14 @@
 
 declare( strict_types=1 );
 
-namespace ArrayPress\WP\RegisterColumns\Traits;
+namespace ArrayPress\RegisterColumns\Traits;
 
 /**
  * Trait Request
  *
  * Request parameter handling utilities.
  *
- * @package ArrayPress\WP\RegisterColumns\Traits
+ * @package ArrayPress\RegisterColumns\Traits
  */
 trait Request {
 
