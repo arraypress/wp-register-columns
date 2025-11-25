@@ -12,14 +12,15 @@
     }
   ],
   "require": {
-    "php": ">=7.4"
+    "php": ">=7.4",
+    "arraypress/wp-array-utils": "dev-main"
   },
   "autoload": {
     "psr-4": {
       "ArrayPress\\RegisterColumns\\": "src/"
     },
     "files": [
-      "src/Functions.php"
+      "src/Utils/Functions.php"
     ]
   },
   "config": {
