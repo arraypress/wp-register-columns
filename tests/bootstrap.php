@@ -119,6 +119,73 @@ if ( ! function_exists( 'get_current_screen' ) ) {
 	}
 }
 
+/*
+ * The bulk actions and filters halves reach for a few more. Recorded or
+ * given core's real behaviour, as thinly as the tests depend on.
+ */
+if ( ! function_exists( 'did_action' ) ) {
+	function did_action( $hook ) {
+		return (int) ( $GLOBALS['rc_did'][ $hook ] ?? 0 );
+	}
+}
+
+if ( ! function_exists( 'sanitize_key' ) ) {
+	function sanitize_key( $key ) {
+		return strtolower( (string) preg_replace( '/[^a-zA-Z0-9_\-]/', '', (string) $key ) );
+	}
+}
+
+if ( ! function_exists( 'sanitize_text_field' ) ) {
+	function sanitize_text_field( $str ) {
+		return trim( (string) wp_strip_all_tags( (string) $str ) );
+	}
+}
+
+if ( ! function_exists( 'wp_strip_all_tags' ) ) {
+	function wp_strip_all_tags( $text, $remove_breaks = false ) {
+		return strip_tags( (string) $text );
+	}
+}
+
+if ( ! function_exists( 'wp_unslash' ) ) {
+	function wp_unslash( $value ) {
+		return is_string( $value ) ? stripslashes( $value ) : $value;
+	}
+}
+
+if ( ! function_exists( 'absint' ) ) {
+	function absint( $value ) {
+		return abs( (int) $value );
+	}
+}
+
+if ( ! function_exists( 'add_query_arg' ) ) {
+	function add_query_arg( $args, $url = '' ) {
+		$parts = explode( '?', (string) $url, 2 );
+		parse_str( $parts[1] ?? '', $existing );
+
+		return $parts[0] . '?' . http_build_query( array_merge( $existing, (array) $args ) );
+	}
+}
+
+if ( ! function_exists( 'selected' ) ) {
+	function selected( $selected, $current = true, $display = true ) {
+		$result = (string) $selected === (string) $current ? " selected='selected'" : '';
+
+		if ( $display ) {
+			echo $result;
+		}
+
+		return $result;
+	}
+}
+
+if ( ! function_exists( '_n' ) ) {
+	function _n( $single, $plural, $number, $domain = 'default' ) {
+		return 1 === (int) $number ? $single : $plural;
+	}
+}
+
 /**
  * Forget everything a previous test set up.
  *
@@ -129,4 +196,5 @@ function rc_reset_globals(): void {
 	$GLOBALS['rc_meta']  = [];
 	$GLOBALS['rc_caps']  = null;
 	$GLOBALS['rc_screen'] = null;
+	$GLOBALS['rc_did']    = [];
 }

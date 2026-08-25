@@ -17,6 +17,7 @@ declare( strict_types=1 );
 namespace ArrayPress\RegisterColumns\Tables;
 
 use ArrayPress\RegisterColumns\Abstracts\Columns;
+use ArrayPress\RegisterColumns\Support\Screen;
 
 /**
  * Class Post
@@ -72,9 +73,7 @@ class Post extends Columns {
 	}
 
 	protected function is_screen(): bool {
-		$screen = get_current_screen();
-
-		return $screen && $screen->post_type === $this->object_subtype && $screen->base === 'edit';
+		return Screen::is( $this->object_type, $this->object_subtype );
 	}
 
 	/**

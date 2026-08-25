@@ -17,6 +17,7 @@ declare( strict_types=1 );
 namespace ArrayPress\RegisterColumns\Tables;
 
 use ArrayPress\RegisterColumns\Abstracts\Columns;
+use ArrayPress\RegisterColumns\Support\Screen;
 
 /**
  * Class User
@@ -69,9 +70,7 @@ class User extends Columns {
 	}
 
 	protected function is_screen(): bool {
-		$screen = get_current_screen();
-
-		return $screen && $screen->id === 'users';
+		return Screen::is( $this->object_type, $this->object_subtype );
 	}
 
 	/**

@@ -18,6 +18,7 @@ declare( strict_types=1 );
 namespace ArrayPress\RegisterColumns\Tables;
 
 use ArrayPress\RegisterColumns\Abstracts\Columns;
+use ArrayPress\RegisterColumns\Support\Screen;
 
 /**
  * Class Media
@@ -70,9 +71,7 @@ class Media extends Columns {
 	}
 
 	protected function is_screen(): bool {
-		$screen = get_current_screen();
-
-		return $screen && $screen->id === 'upload';
+		return Screen::is( $this->object_type, $this->object_subtype );
 	}
 
 	/**

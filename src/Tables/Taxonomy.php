@@ -17,6 +17,7 @@ declare( strict_types=1 );
 namespace ArrayPress\RegisterColumns\Tables;
 
 use ArrayPress\RegisterColumns\Abstracts\Columns;
+use ArrayPress\RegisterColumns\Support\Screen;
 
 /**
  * Class Taxonomy
@@ -69,12 +70,7 @@ class Taxonomy extends Columns {
 	}
 
 	protected function is_screen(): bool {
-		$screen = get_current_screen();
-
-		// Both the term list and the single-term edit screen carry the
-		// taxonomy, and only the list has columns to style. base is what
-		// separates them: edit-tags against term.
-		return $screen && 'edit-tags' === $screen->base && $screen->taxonomy === $this->object_subtype;
+		return Screen::is( $this->object_type, $this->object_subtype );
 	}
 
 	/**

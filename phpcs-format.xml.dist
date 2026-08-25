@@ -83,6 +83,34 @@
         -->
         <exclude-pattern>src/Abstracts/Columns.php</exclude-pattern>
         <exclude-pattern>src/Tables/*.php</exclude-pattern>
+
+        <!--
+            And the filters, where tax_query and meta_query are the whole
+            point: filtering a list table by a term or a meta value is what
+            the library is for, and there is no cheaper query that does it.
+        -->
+        <exclude-pattern>src/Filters/*.php</exclude-pattern>
+    </rule>
+
+    <rule ref="WordPress.Security.NonceVerification">
+        <!--
+            A list filter is read from the query string, which is how every
+            list table in WordPress carries its own state: core reads orderby,
+            paged and s the same way and without a nonce. A GET navigation to
+            a filtered view has no nonce to check, nothing here writes, and
+            every value is sanitized at the point of read.
+        -->
+        <exclude-pattern>src/Filters/*.php</exclude-pattern>
+        <exclude-pattern>src/Abstracts/ListFilters.php</exclude-pattern>
+
+        <!--
+            And the bulk-action notice, which reads back the query args its
+            own redirect just set. The action itself was nonce-checked by
+            core before handle_bulk_actions- fired; this is only what to say
+            about it afterwards, and every value is sanitized on read and
+            escaped on output.
+        -->
+        <exclude-pattern>src/Abstracts/BulkActions.php</exclude-pattern>
     </rule>
 
 </ruleset>
