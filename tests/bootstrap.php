@@ -197,4 +197,14 @@ function rc_reset_globals(): void {
 	$GLOBALS['rc_caps']  = null;
 	$GLOBALS['rc_screen'] = null;
 	$GLOBALS['rc_did']    = [];
+
+	// The column registry and the record of which tables have had their
+	// hooks attached are both static, which is right in a request and wrong
+	// across tests: the second test would find no hooks attached at all,
+	// because the first already claimed the table.
+	if ( class_exists( 'ArrayPress\\RegisterColumns\\Abstracts\\Columns' ) ) {
+		foreach ( [ 'columns', 'hooked' ] as $property ) {
+			( new ReflectionProperty( 'ArrayPress\\RegisterColumns\\Abstracts\\Columns', $property ) )->setValue( null, [] );
+		}
+	}
 }

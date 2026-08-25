@@ -373,4 +373,83 @@ final class ColumnsTest extends TestCase {
 		];
 	}
 
+	/**
+	 * Registering twice for one table does not attach the hooks twice.
+	 *
+	 * The registry is static and keyed by table, so one set of hooks renders
+	 * everything registered for it. A second set renders everything again —
+	 * and because it is the *same* registry, every cell on the screen came
+	 * out twice, not just the second batch's.
+	 *
+	 * Which is an ordinary thing to do: a shared set of columns for `post`
+	 * and `page`, and a few more for pages alone, is two calls naming `page`.
+	 */
+	public function test_registering_twice_for_one_table_does_not_double_the_hooks(): void {
+		new Post( [ 'shared' => [ 'label' => 'Shared' ] ], 'page' );
+		new Post( [ 'extra' => [ 'label' => 'Extra' ] ], 'page' );
+
+		foreach (
+			[
+				'manage_page_posts_columns',
+				'manage_page_posts_custom_column',
+				'manage_edit-page_sortable_columns',
+				'admin_head',
+			] as $hook
+		) {
+			$this->assertCount(
+				1,
+				$GLOBALS['rc_hooks'][ $hook ] ?? [],
+				sprintf( '%s is attached more than once.', $hook )
+			);
+		}
+
+		// And both batches are there to be rendered by the one that remains.
+		$this->assertSame(
+			[ 'shared', 'extra' ],
+			array_keys( Post::get_columns( 'post', 'page' ) )
+		);
+	}
+
+	/**
+	 * Two different tables still get their own hooks.
+	 *
+	 * The guard is per table, not global — otherwise fixing the doubling
+	 * would stop the second post type having any columns at all.
+	 */
+	public function test_two_tables_each_get_their_own_hooks(): void {
+		new Post( [ 'a' => [ 'label' => 'A' ] ], 'post' );
+		new Post( [ 'b' => [ 'label' => 'B' ] ], 'page' );
+
+		$this->assertArrayHasKey( 'manage_post_posts_custom_column', $GLOBALS['rc_hooks'] );
+		$this->assertArrayHasKey( 'manage_page_posts_custom_column', $GLOBALS['rc_hooks'] );
+	}
+
+	/**
+	 * The width stylesheet is printed once, not once per registration.
+	 */
+	public function test_the_width_stylesheet_is_printed_once(): void {
+		new Post( [ 'shared' => [ 'label' => 'Shared', 'width' => '10%' ] ], 'page' );
+		new Post( [ 'extra' => [ 'label' => 'Extra', 'width' => '8em' ] ], 'page' );
+
+		$GLOBALS['rc_screen'] = (object) [ 'base' => 'edit', 'post_type' => 'page' ];
+
+		$printers = $GLOBALS['rc_hooks']['admin_head'] ?? [];
+
+		$this->assertCount( 1, $printers );
+
+		ob_start();
+
+		try {
+			foreach ( $printers as $printer ) {
+				$printer();
+			}
+		} finally {
+			$html = (string) ob_get_clean();
+		}
+
+		$this->assertSame( 1, substr_count( $html, '<style>' ) );
+		$this->assertStringContainsString( '.column-shared{width:10%}', $html );
+		$this->assertStringContainsString( '.column-extra{width:8em}', $html );
+	}
+
 }

@@ -49,6 +49,22 @@ abstract class Columns {
 	protected static array $columns = [];
 
 	/**
+	 * The tables whose hooks are already attached.
+	 *
+	 * Keyed by object type and subtype, because that is what the column
+	 * registry above is keyed by — one set of hooks renders everything
+	 * registered for a table, whoever registered it.
+	 *
+	 * Without this, calling the registration function twice for the same
+	 * table attaches a second copy of every hook, and each copy renders
+	 * every column: two registrations for `page`, one shared with `post` and
+	 * one for pages alone, printed every cell on the Pages screen twice.
+	 *
+	 * @var array<string, array<string, bool>>
+	 */
+	protected static array $hooked = [];
+
+	/**
 	 * Object type for the current instance.
 	 *
 	 * @var string
@@ -88,7 +104,13 @@ abstract class Columns {
 		$this->object_subtype = $object_subtype;
 		$this->set_keys_to_remove( $keys_to_remove );
 		$this->add_columns( $columns );
-		$this->load_hooks();
+
+		if ( ! isset( self::$hooked[ $this->object_type ][ $this->object_subtype ] ) ) {
+			self::$hooked[ $this->object_type ][ $this->object_subtype ] = true;
+
+			$this->load_hooks();
+			$this->add_column_filters();
+		}
 	}
 
 	/**
@@ -131,12 +153,14 @@ abstract class Columns {
 
 			self::$columns[ $this->object_type ][ $this->object_subtype ][ $key ] = wp_parse_args( $column, $default_column );
 		}
-
-		$this->add_column_filters();
 	}
 
 	/**
-	 * Add filters to manage columns and content.
+	 * Add the hooks that are the same whatever the table is.
+	 *
+	 * Attached once per table, beside load_hooks(), rather than once per
+	 * call to add_columns() — which printed the width stylesheet once for
+	 * every registration.
 	 *
 	 * @return void
 	 */
