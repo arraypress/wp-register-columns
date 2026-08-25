@@ -44,7 +44,7 @@ class Taxonomy extends Columns {
 	protected function load_hooks(): void {
 		add_filter( "manage_edit-{$this->object_subtype}_columns", [ $this, 'register_columns' ] );
 		add_filter( "manage_edit-{$this->object_subtype}_sortable_columns", [ $this, 'register_sortable_columns' ] );
-		add_action( "manage_{$this->object_subtype}_custom_column", [ $this, 'render_column_content' ], 10, 3 );
+		add_filter( "manage_{$this->object_subtype}_custom_column", [ $this, 'render_column_content' ], 10, 3 );
 		add_filter( 'terms_clauses', [ $this, 'terms_clauses' ], 10, 3 );
 	}
 
@@ -71,7 +71,10 @@ class Taxonomy extends Columns {
 	protected function is_screen(): bool {
 		$screen = get_current_screen();
 
-		return $screen && $screen->taxonomy === $this->object_subtype;
+		// Both the term list and the single-term edit screen carry the
+		// taxonomy, and only the list has columns to style. base is what
+		// separates them: edit-tags against term.
+		return $screen && 'edit-tags' === $screen->base && $screen->taxonomy === $this->object_subtype;
 	}
 
 	/**

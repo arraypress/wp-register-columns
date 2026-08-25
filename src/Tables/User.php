@@ -44,7 +44,7 @@ class User extends Columns {
 	protected function load_hooks(): void {
 		add_filter( 'manage_users_columns', [ $this, 'register_columns' ] );
 		add_filter( 'manage_users_sortable_columns', [ $this, 'register_sortable_columns' ] );
-		add_action( 'manage_users_custom_column', [ $this, 'render_column_content' ], 10, 3 );
+		add_filter( 'manage_users_custom_column', [ $this, 'render_column_content' ], 10, 3 );
 		add_action( 'pre_get_users', [ $this, 'sort_items' ] );
 	}
 

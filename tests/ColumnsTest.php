@@ -286,4 +286,91 @@ final class ColumnsTest extends TestCase {
 
 		$this->assertSame( '', $css );
 	}
+	/**
+	 * Every hook name is one WordPress actually fires.
+	 *
+	 * These are the whole library. A misspelling is not an error, not a
+	 * warning and not a failing test — it is a screen that looks exactly
+	 * like a screen where nobody registered anything, which is the hardest
+	 * kind of bug to see. Checked against core's source rather than from
+	 * memory: the names are built at runtime from a screen id, so they do
+	 * not appear literally anywhere and cannot be grepped for.
+	 *
+	 * @dataProvider hookProvider
+	 *
+	 * @param string $table    A table class.
+	 * @param string $subtype  Its subtype.
+	 * @param array  $expected The hooks it must attach to.
+	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'hookProvider' )]
+	public function test_every_table_attaches_to_the_hooks_core_fires( string $table, string $subtype, array $expected ): void {
+		$class = 'ArrayPress\\RegisterColumns\\Tables\\' . $table;
+
+		new $class( [ 'x' => [ 'label' => 'X' ] ], $subtype );
+
+		foreach ( $expected as $hook ) {
+			$this->assertArrayHasKey( $hook, $GLOBALS['rc_hooks'], sprintf( '%s does not attach to %s.', $table, $hook ) );
+		}
+	}
+
+	/**
+	 * The hook each table needs, and where core fires it.
+	 *
+	 * post       manage_{$post_type}_posts_columns          class-wp-posts-list-table.php:755
+	 *            manage_{$screen->id}_sortable_columns      class-wp-list-table.php:1353
+	 *            manage_{$post_type}_posts_custom_column    class-wp-posts-list-table.php:1508
+	 * user       manage_{$screen->id}_columns               screen.php:37
+	 *            manage_users_custom_column                 class-wp-users-list-table.php:632
+	 * taxonomy   manage_{$taxonomy}_custom_column           class-wp-terms-list-table.php:667
+	 * comment    manage_comments_custom_column              class-wp-comments-list-table.php:1170
+	 * media      manage_media_columns                       class-wp-media-list-table.php:423
+	 *            manage_media_custom_column                 class-wp-media-list-table.php:743
+	 *
+	 * @return array<string, array{0: string, 1: string, 2: string[]}>
+	 */
+	public static function hookProvider(): array {
+		return [
+			'post'     => [
+				'Post',
+				'download',
+				[
+					'manage_download_posts_columns',
+					'manage_edit-download_sortable_columns',
+					'manage_download_posts_custom_column',
+					'pre_get_posts',
+				],
+			],
+			'user'     => [
+				'User',
+				'user',
+				[ 'manage_users_columns', 'manage_users_sortable_columns', 'manage_users_custom_column', 'pre_get_users' ],
+			],
+			'taxonomy' => [
+				'Taxonomy',
+				'category',
+				[
+					'manage_edit-category_columns',
+					'manage_edit-category_sortable_columns',
+					'manage_category_custom_column',
+					'terms_clauses',
+				],
+			],
+			'comment'  => [
+				'Comment',
+				'comment',
+				[
+					'manage_edit-comments_columns',
+					'manage_edit-comments_sortable_columns',
+					'manage_comments_custom_column',
+					'pre_get_comments',
+				],
+			],
+			'media'    => [
+				'Media',
+				'attachment',
+				[ 'manage_media_columns', 'manage_upload_sortable_columns', 'manage_media_custom_column', 'pre_get_posts' ],
+			],
+		];
+	}
+
 }
