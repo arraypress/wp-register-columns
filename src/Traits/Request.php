@@ -50,5 +50,4 @@ trait Request {
 	protected function get_orderby(): string {
 		return isset( $_REQUEST['orderby'] ) ? sanitize_key( $_REQUEST['orderby'] ) : '';
 	}
-
 }

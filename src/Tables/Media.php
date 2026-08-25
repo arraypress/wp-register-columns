@@ -54,6 +54,21 @@ class Media extends Columns {
 	 *
 	 * @return bool True if on the media library screen, false otherwise.
 	 */
+	/**
+	 * One meta value for this object type.
+	 *
+	 * The only thing that differed between the five copies of the renderer
+	 * this replaced.
+	 *
+	 * @param int|string $object_id The object.
+	 * @param string     $meta_key  The key.
+	 *
+	 * @return mixed
+	 */
+	protected function get_meta( $object_id, string $meta_key ) {
+		return get_post_meta( (int) $object_id, $meta_key, true );
+	}
+
 	protected function is_screen(): bool {
 		$screen = get_current_screen();
 
@@ -89,39 +104,6 @@ class Media extends Columns {
 		}
 
 		return $this->render_custom_column_content( $attachment_id, $column );
-	}
-
-	/**
-	 * Render the content for a custom column.
-	 *
-	 * @param int   $attachment_id The attachment ID.
-	 * @param array $column        The configuration array of the current column.
-	 *
-	 * @return string The rendered content.
-	 */
-	private function render_custom_column_content( int $attachment_id, array $column ): string {
-		// If there's a display callback, use it
-		if ( is_callable( $column['display_callback'] ) ) {
-			// If there's a meta_key, pass the value as first parameter
-			if ( ! empty( $column['meta_key'] ) ) {
-				$value = get_post_meta( $attachment_id, $column['meta_key'], true );
-
-				return (string) call_user_func( $column['display_callback'], $value, $attachment_id );
-			}
-
-			// Otherwise just pass the attachment ID
-			return (string) call_user_func( $column['display_callback'], $attachment_id );
-		}
-
-		// Default behavior: show meta value
-		$meta_key = $column['meta_key'] ?? '';
-		$value    = get_post_meta( $attachment_id, $meta_key, true );
-
-		if ( empty( $value ) ) {
-			return '—';
-		}
-
-		return esc_html( $value );
 	}
 
 	/**
@@ -162,17 +144,16 @@ class Media extends Columns {
 		// Priority 1: Use sortby if explicitly set (most flexible)
 		if ( ! empty( $sortby ) ) {
 			$query->set( 'orderby', $sortby );
-		} // Priority 2: If there's a meta_key, sort by meta value
-		elseif ( ! empty( $meta_key ) ) {
+		} elseif ( ! empty( $meta_key ) ) {
+			// Priority 2: If there's a meta_key, sort by meta value
 			$query->set( 'meta_key', $meta_key );
 			$query->set( 'orderby', $sort_numeric ? 'meta_value_num' : 'meta_value' );
-		} // Priority 3: No meta_key or sortby means it's a post property
-		else {
+		} else {
+			// Priority 3: No meta_key or sortby means it's a post property
 			// For numeric sorting without meta, assume ID
 			if ( $sort_numeric ) {
 				$query->set( 'orderby', 'ID' );
 			}
 		}
 	}
-
 }

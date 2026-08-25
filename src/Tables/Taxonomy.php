@@ -53,6 +53,21 @@ class Taxonomy extends Columns {
 	 *
 	 * @return bool True if on the taxonomy edit screen, false otherwise.
 	 */
+	/**
+	 * One meta value for this object type.
+	 *
+	 * The only thing that differed between the five copies of the renderer
+	 * this replaced.
+	 *
+	 * @param int|string $object_id The object.
+	 * @param string     $meta_key  The key.
+	 *
+	 * @return mixed
+	 */
+	protected function get_meta( $object_id, string $meta_key ) {
+		return get_term_meta( (int) $object_id, $meta_key, true );
+	}
+
 	protected function is_screen(): bool {
 		$screen = get_current_screen();
 
@@ -76,39 +91,6 @@ class Taxonomy extends Columns {
 		}
 
 		return $this->render_custom_column_content( $term_id, $column );
-	}
-
-	/**
-	 * Render the content for a custom column.
-	 *
-	 * @param int   $term_id The term ID.
-	 * @param array $column  The configuration array of the current column.
-	 *
-	 * @return string The rendered content.
-	 */
-	private function render_custom_column_content( int $term_id, array $column ): string {
-		// If there's a display callback, use it
-		if ( is_callable( $column['display_callback'] ) ) {
-			// If there's a meta_key, pass the value as first parameter
-			if ( ! empty( $column['meta_key'] ) ) {
-				$value = get_term_meta( $term_id, $column['meta_key'], true );
-
-				return (string) call_user_func( $column['display_callback'], $value, $term_id );
-			}
-
-			// Otherwise just pass the term ID
-			return (string) call_user_func( $column['display_callback'], $term_id );
-		}
-
-		// Default behavior: show meta value
-		$meta_key = $column['meta_key'] ?? '';
-		$value    = get_term_meta( $term_id, $meta_key, true );
-
-		if ( empty( $value ) ) {
-			return '—';
-		}
-
-		return esc_html( $value );
 	}
 
 	/**
@@ -156,13 +138,13 @@ class Taxonomy extends Columns {
 		// Join term meta data
 		$clauses['join']   .= " INNER JOIN {$wpdb->termmeta} AS tm ON t.term_id = tm.term_id";
 		$clauses['fields'] .= ', tm.meta_value';
-		$clauses['where']  .= $wpdb->prepare( " AND tm.meta_key = %s", $meta_key );
+		$clauses['where']  .= $wpdb->prepare( ' AND tm.meta_key = %s', $meta_key );
 
 		// Determine the order by clause based on column type
 		if ( $column['numeric'] ) {
-			$clauses['orderby'] = "ORDER BY CAST(tm.meta_value AS SIGNED)";
+			$clauses['orderby'] = 'ORDER BY CAST(tm.meta_value AS SIGNED)';
 		} else {
-			$clauses['orderby'] = "ORDER BY tm.meta_value";
+			$clauses['orderby'] = 'ORDER BY tm.meta_value';
 		}
 
 		$clauses['order'] = $order;
@@ -170,5 +152,4 @@ class Taxonomy extends Columns {
 		// Return modified clauses
 		return $clauses;
 	}
-
 }

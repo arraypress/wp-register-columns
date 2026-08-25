@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+<ruleset name="WP Register Columns">
+    <description>Defect-hunting sniffs. Preferences live in phpcs-format.xml.dist.</description>
+
+    <file>src</file>
+
+    <arg name="extensions" value="php"/>
+    <arg name="colors"/>
+    <arg value="sp"/>
+
+    <config name="testVersion" value="8.3-"/>
+    <config name="installed_paths" value="vendor/wp-coding-standards/wpcs,vendor/phpcompatibility/php-compatibility,vendor/phpcompatibility/phpcompatibility-paragonie,vendor/phpcompatibility/phpcompatibility-wp,vendor/phpcsstandards/phpcsutils,vendor/phpcsstandards/phpcsextra"/>
+
+    <rule ref="PHPCompatibilityWP"/>
+
+    <rule ref="WordPress.Security"/>
+    <rule ref="WordPress.DB"/>
+    <rule ref="WordPress.WP.I18n"/>
+
+    <rule ref="WordPress.Security.EscapeOutput">
+        <!--
+            Every one of these echoes the return value of an EDD markup helper:
+            EDD()->html->select(), ->product_dropdown(), ->date_field() and the
+            rest. They return escaped HTML by design, and escaping the result
+            again would print the tags instead of rendering the controls.
+            Rendering EDD's own fields is what this library is for, so the
+            exclusion is the whole file rather than a line list.
+        -->
+    </rule>
+
+
+    <rule ref="WordPress.Security.EscapeOutput">
+        <!--
+            These echo the return value of a plugin's own display_callback.
+            Column content is markup by contract; the whole point of the
+            callback is to let a plugin return a link or a badge, and escaping
+            it here would print the tags. Escaping is the callback's job, and
+            the consuming plugins do it.
+        -->
+        <exclude-pattern>src/Tables/*</exclude-pattern>
+    </rule>
+
+    <rule ref="WordPress.Security.NonceVerification">
+        <!--
+            Reads `order` and `orderby` out of the query string to work out how
+            the list table is sorted, both through sanitize_key(). Nothing is
+            written, and a sortable column header is a link, which carries no
+            nonce.
+        -->
+        <exclude-pattern>src/Traits/Request.php</exclude-pattern>
+    </rule>
+
+    <rule ref="WordPress.DB.SlowDBQuery">
+        <!--
+            In the abstract, "meta_key" is a key in this library's own column
+            config array describing which meta a column reads. It is not a
+            query argument at all, and the sniff cannot tell the difference.
+
+            In the table classes it is a query argument, and the sniff is
+            right about what it costs — sorting a list table by a meta value
+            means a join on the meta table, and there is no other way to do
+            it. That is the feature: a column that says it is sortable has to
+            sort. The alternative is not a faster query, it is no sorting.
+        -->
+        <exclude-pattern>src/Abstracts/Columns.php</exclude-pattern>
+        <exclude-pattern>src/Tables/*.php</exclude-pattern>
+    </rule>
+
+</ruleset>

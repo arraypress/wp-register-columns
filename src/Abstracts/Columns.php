@@ -117,6 +117,7 @@ abstract class Columns {
 			'position'            => '',
 			'sortable'            => false,
 			'numeric'             => false,
+			'desc_first'          => false,
 			'sortby'              => '',
 			'display_callback'    => null,
 			'permission_callback' => null,
@@ -235,7 +236,13 @@ abstract class Columns {
 
 		foreach ( $custom_columns as $key => $column ) {
 			if ( $column['sortable'] ) {
-				$columns[ $key ] = [ $key, $column['numeric'] ?? false ];
+				// The second element is core's "sort descending on the first
+				// click", not a type. `numeric` was being passed here, so
+				// every numeric column silently started descending — while
+				// `numeric` also, correctly, drives meta_value_num in the
+				// query. Two different jobs, one config key, one of them
+				// wrong.
+				$columns[ $key ] = [ $key, (bool) ( $column['desc_first'] ?? false ) ];
 			}
 		}
 
@@ -252,14 +259,44 @@ abstract class Columns {
 			return;
 		}
 
-		echo '<style>';
+		$rules = '';
+
 		foreach ( self::get_columns( $this->object_type, $this->object_subtype ) as $key => $column ) {
-			if ( ! empty( $column['width'] ) ) {
-				$width = esc_attr( $column['width'] );
-				echo ".column-$key { width: {$width}; }";
+			$width = self::sanitize_width( (string) ( $column['width'] ?? '' ) );
+
+			if ( '' === $width ) {
+				continue;
 			}
+
+			$rules .= sprintf( '.column-%s{width:%s}', sanitize_html_class( (string) $key ), $width );
 		}
-		echo '</style>';
+
+		// Nothing to say, so nothing said. An empty <style> element in every
+		// admin head is not harmful and is not defensible either.
+		if ( '' === $rules ) {
+			return;
+		}
+
+		printf( '<style>%s</style>', $rules ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	}
+
+	/**
+	 * A width, if it is one.
+	 *
+	 * This goes into a stylesheet, and esc_attr() does nothing useful there:
+	 * it escapes for an HTML attribute, so a brace and a semicolon pass
+	 * straight through and `10px;} body{display:none` closes the rule and
+	 * writes another. A CSS length is a number and a unit, so that is all
+	 * that is allowed through.
+	 *
+	 * @param string $width The configured width.
+	 *
+	 * @return string The width, or an empty string if it is not one.
+	 */
+	protected static function sanitize_width( string $width ): string {
+		$width = trim( $width );
+
+		return preg_match( '/^\d+(\.\d+)?(px|em|rem|%|ch|vw)$/', $width ) ? $width : '';
 	}
 
 	/**
@@ -268,6 +305,69 @@ abstract class Columns {
 	 * @return bool True if on the correct screen, false otherwise.
 	 */
 	abstract protected function is_screen(): bool;
+
+	/**
+	 * One meta value for an object of this type.
+	 *
+	 * The only thing that differs between a post column and a term column
+	 * once the configuration has been read — which is why the rendering
+	 * below is here and not copied into each table class, as it was, five
+	 * times, identically.
+	 *
+	 * @param int|string $object_id The object.
+	 * @param string     $meta_key  The key.
+	 *
+	 * @return mixed
+	 */
+	abstract protected function get_meta( $object_id, string $meta_key );
+
+	/**
+	 * What one cell of a custom column contains.
+	 *
+	 * A display callback is given the meta value first when the column names
+	 * a meta_key, and the object id alone when it does not — so a column that
+	 * is about a stored value does not have to fetch it, and one that is
+	 * about the object can still do anything.
+	 *
+	 * @param int|string           $object_id The object.
+	 * @param array<string, mixed> $column    The column's configuration.
+	 *
+	 * @return string
+	 */
+	protected function render_custom_column_content( $object_id, array $column ): string {
+		$meta_key = (string) ( $column['meta_key'] ?? '' );
+
+		if ( is_callable( $column['display_callback'] ) ) {
+			return '' === $meta_key
+				? (string) call_user_func( $column['display_callback'], $object_id )
+				: (string) call_user_func( $column['display_callback'], $this->get_meta( $object_id, $meta_key ), $object_id );
+		}
+
+		$value = '' === $meta_key ? '' : $this->get_meta( $object_id, $meta_key );
+
+		// Not empty(): a stored nought is a value, and a column of counts
+		// showing a dash where it should show 0 is a column that looks
+		// broken rather than empty.
+		if ( null === $value || '' === $value || false === $value || [] === $value ) {
+			return self::placeholder();
+		}
+
+		return esc_html( (string) $value );
+	}
+
+	/**
+	 * What an empty cell shows.
+	 *
+	 * A dash for the eye and a word for anything reading the page aloud: an
+	 * em dash announces as "em dash", or as nothing at all, and a blank cell
+	 * in a list table reads as a column that failed to load.
+	 *
+	 * @return string
+	 */
+	protected static function placeholder(): string {
+		return '<span aria-hidden="true">&#8212;</span><span class="screen-reader-text">'
+			. esc_html__( 'None', 'arraypress' ) . '</span>';
+	}
 
 	/**
 	 * Render the custom column content.
@@ -303,5 +403,4 @@ abstract class Columns {
 	 * @return void
 	 */
 	abstract protected function load_hooks(): void;
-
 }
