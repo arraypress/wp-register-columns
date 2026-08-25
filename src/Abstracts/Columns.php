@@ -283,6 +283,9 @@ abstract class Columns {
 	/**
 	 * A width, if it is one.
 	 *
+	 * A CSS length, a percentage, or `auto` — which is a real width and the
+	 * way to say "leave this column alone".
+	 *
 	 * This goes into a stylesheet, and esc_attr() does nothing useful there:
 	 * it escapes for an HTML attribute, so a brace and a semicolon pass
 	 * straight through and `10px;} body{display:none` closes the rule and
@@ -296,7 +299,7 @@ abstract class Columns {
 	protected static function sanitize_width( string $width ): string {
 		$width = trim( $width );
 
-		return preg_match( '/^\d+(\.\d+)?(px|em|rem|%|ch|vw)$/', $width ) ? $width : '';
+		return preg_match( '/^(auto|\d+(\.\d+)?(px|em|rem|%|ch|vw))$/', $width ) ? $width : '';
 	}
 
 	/**
