@@ -1,71 +1,70 @@
 {
-    "name": "arraypress/wp-register-columns",
-    "version": "2.0.0",
-    "description": "Lightweight library for registering custom columns in WordPress admin tables.",
-    "homepage": "https://github.com/arraypress/wp-register-columns/",
-    "type": "library",
-    "license": "GPL-2.0-or-later",
-    "authors": [
-        {
-            "name": "David Sherlock",
-            "homepage": "https://arraypress.com/"
-        }
-    ],
-    "require": {
-        "php": ">=8.3",
-        "arraypress/wp-array-utils": "*"
-    },
-    "autoload": {
-        "psr-4": {
-            "ArrayPress\\RegisterColumns\\": "src/"
-        },
-        "files": [
-            "src/Utils/Functions.php",
-            "src/Utils/BulkActions.php",
-            "src/Utils/Filters.php"
-        ]
-    },
-    "config": {
-        "optimize-autoloader": true,
-        "sort-packages": true,
-        "preferred-install": "dist",
-        "allow-plugins": {
-            "dealerdirect/phpcodesniffer-composer-installer": false
-        }
-    },
-    "minimum-stability": "dev",
-    "prefer-stable": true,
-    "support": {
-        "issues": "https://github.com/arraypress/wp-register-columns/issues",
-        "source": "https://github.com/arraypress/wp-register-columns"
-    },
-    "keywords": [
-        "wordpress",
-        "columns",
-        "admin",
-        "custom-columns",
-        "table-columns",
-        "posts",
-        "users",
-        "taxonomies",
-        "comments",
-        "media"
-    ],
-    "require-dev": {
-        "phpcompatibility/phpcompatibility-wp": "^2.1",
-        "phpunit/phpunit": "^12.0",
-        "squizlabs/php_codesniffer": "^3.13.5",
-        "wp-coding-standards/wpcs": "^3.4"
-    },
-    "scripts": {
-        "test": "phpunit",
-        "lint": "phpcs",
-        "format": "phpcbf --standard=phpcs-format.xml.dist",
-        "format:check": "phpcs --standard=phpcs-format.xml.dist"
-    },
-    "autoload-dev": {
-        "psr-4": {
-            "ArrayPress\\RegisterColumns\\Tests\\": "tests/"
-        }
+  "name": "arraypress/wp-register-columns",
+  "description": "Lightweight library for registering custom columns in WordPress admin tables.",
+  "homepage": "https://github.com/arraypress/wp-register-columns/",
+  "type": "library",
+  "license": "GPL-2.0-or-later",
+  "authors": [
+    {
+      "name": "David Sherlock",
+      "homepage": "https://arraypress.com/"
     }
+  ],
+  "require": {
+    "php": ">=8.3",
+    "arraypress/wp-array-utils": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "ArrayPress\\RegisterColumns\\": "src/"
+    },
+    "files": [
+      "src/Utils/Functions.php",
+      "src/Utils/BulkActions.php",
+      "src/Utils/Filters.php"
+    ]
+  },
+  "config": {
+    "optimize-autoloader": true,
+    "sort-packages": true,
+    "preferred-install": "dist",
+    "allow-plugins": {
+      "dealerdirect/phpcodesniffer-composer-installer": false
+    }
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+  "support": {
+    "issues": "https://github.com/arraypress/wp-register-columns/issues",
+    "source": "https://github.com/arraypress/wp-register-columns"
+  },
+  "keywords": [
+    "wordpress",
+    "columns",
+    "admin",
+    "custom-columns",
+    "table-columns",
+    "posts",
+    "users",
+    "taxonomies",
+    "comments",
+    "media"
+  ],
+  "require-dev": {
+    "phpcompatibility/phpcompatibility-wp": "^2.1",
+    "phpunit/phpunit": "^12.0",
+    "squizlabs/php_codesniffer": "^3.13.5",
+    "wp-coding-standards/wpcs": "^3.4"
+  },
+  "scripts": {
+    "test": "phpunit",
+    "lint": "phpcs",
+    "format": "phpcbf --standard=phpcs-format.xml.dist",
+    "format:check": "phpcs --standard=phpcs-format.xml.dist"
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "ArrayPress\\RegisterColumns\\Tests\\": "tests/"
+    }
+  }
 }
