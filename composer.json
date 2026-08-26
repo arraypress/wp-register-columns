@@ -19,9 +19,9 @@
       "ArrayPress\\RegisterColumns\\": "src/"
     },
     "files": [
-      "src/Utils/Functions.php",
-      "src/Utils/BulkActions.php",
-      "src/Utils/Filters.php"
+      "src/Functions.php",
+      "src/BulkActions.php",
+      "src/Filters.php"
     ]
   },
   "config": {
