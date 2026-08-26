@@ -1,0 +1,81 @@
+/**
+ * Row Actions - CSS
+ *
+ * Styles for AJAX row actions in WordPress admin tables.
+ *
+ * @package ArrayPress\WP\RegisterRowActions
+ * @version 1.0.0
+ */
+
+/* Spinning animation for processing state */
+@keyframes row-action-spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.row-action-spin {
+    animation: row-action-spin 1s linear infinite;
+    display: inline-block;
+}
+
+/* AJAX action links */
+.row-action-ajax {
+    cursor: pointer;
+}
+
+.row-action-ajax .dashicons {
+    width: 16px;
+    height: 16px;
+    font-size: 16px;
+    vertical-align: text-top;
+}
+
+/* Processing state */
+.row-action-ajax.processing {
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+/* Success state */
+.row-action-ajax .dashicons-yes {
+    color: #46b450;
+}
+
+/* Error state */
+.row-action-ajax .dashicons-no-alt {
+    color: #dc3232;
+}
+
+/* Hover state */
+.row-action-ajax:hover {
+    color: #135e96;
+}
+
+/* Focus state for accessibility */
+.row-action-ajax:focus {
+    box-shadow: 0 0 0 1px #4f94d4, 0 0 2px 1px rgba(79, 148, 212, 0.8);
+    outline: 2px solid transparent;
+}
+
+/* Row highlighting during action */
+tr.row-action-processing {
+    background-color: #f0f0f1;
+}
+
+/* Fade out animation for removed rows */
+@keyframes row-fadeout {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+
+tr.row-removing {
+    animation: row-fadeout 0.3s ease-out;
+}

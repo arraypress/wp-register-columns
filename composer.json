@@ -12,7 +12,8 @@
   ],
   "require": {
     "php": ">=8.3",
-    "arraypress/wp-array-utils": "*"
+    "arraypress/wp-array-utils": "*",
+    "arraypress/wp-composer-assets": "*"
   },
   "autoload": {
     "psr-4": {
@@ -21,7 +22,9 @@
     "files": [
       "src/Functions.php",
       "src/BulkActions.php",
-      "src/Filters.php"
+      "src/Filters.php",
+      "src/RowActions.php",
+      "src/RowActionHelpers.php"
     ]
   },
   "config": {

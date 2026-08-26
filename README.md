@@ -1,11 +1,11 @@
 # Register Columns
 
-Add columns, filters and bulk actions to WordPress's own list tables — posts,
-users, terms, comments and media.
+Add columns, filters, bulk actions and row actions to WordPress's own list
+tables — posts, users, terms, comments and media.
 
-Three things that sound separate and are not: they all hang off the same admin
+Four things that sound separate and are not: they all hang off the same admin
 screen, they all need to know which screen that is, and a plugin that wants one
-usually wants the others. They were three packages until they weren't.
+usually wants the others. They were four packages until they weren't.
 
 ## Install
 
@@ -163,6 +163,33 @@ same shape.
 A `capability` keeps the action out of the dropdown for anybody who may not
 use it. An action that appears and then refuses reads as a broken feature
 rather than a locked one.
+
+## Row actions
+
+The links under a row's title — Edit, Trash, View — and yours beside them.
+
+```php
+register_post_row_actions( 'download', [
+	'duplicate' => [
+		'label'      => __( 'Duplicate', 'my-plugin' ),
+		'capability' => 'edit_posts',
+		'ajax'       => true,
+		'confirm'    => __( 'Duplicate this download?', 'my-plugin' ),
+		'callback'   => function ( int $post_id ): string {
+			// ... do the work ...
+			return __( 'Duplicated.', 'my-plugin' );
+		},
+	],
+] );
+```
+
+`ajax => true` runs the callback over admin-ajax and replaces the row action's
+text with whatever it returns, so nothing reloads. Without it the action is an
+ordinary link and `url` says where it goes.
+
+`register_user_row_actions()`, `register_taxonomy_row_actions()`,
+`register_comment_row_actions()` and `register_media_row_actions()` take the
+same shape.
 
 ## Screens
 

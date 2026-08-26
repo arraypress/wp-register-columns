@@ -15,6 +15,104 @@ if ( ! defined( 'ABSPATH' ) ) {
 	define( 'ABSPATH', __DIR__ . '/' );
 }
 
+/* -----------------------------------------------------------------------
+ * Row actions
+ *
+ * These came with wp-register-row-actions when it was absorbed. Its own
+ * stubs for the hooks, capabilities and escaping are not here: this file
+ * already had them, and where the two disagreed the stricter one stayed --
+ * a real add_query_arg over one returning a fixed string, a real
+ * did_action over one that always answered 1.
+ *
+ * The two that came the other way were wp_parse_args, which handles an
+ * object, and wp_unslash, which recurses into an array. Both are what core
+ * does and neither was here.
+ * -------------------------------------------------------------------- */
+
+if ( ! function_exists( 'admin_url' ) ) {
+	function admin_url( $path = '' ) { return 'https://example.test/wp-admin/' . ltrim( (string) $path, '/' ); }
+}
+
+if ( ! function_exists( 'apply_filters' ) ) {
+	function apply_filters( $hook, $value, ...$rest ) {
+		foreach ( $GLOBALS['ra_filters'][ $hook ] ?? array() as $cb ) {
+			$value = $cb( $value, ...$rest );
+		}
+		return $value;
+	}
+}
+
+if ( ! function_exists( 'check_ajax_referer' ) ) {
+	function check_ajax_referer( $action, $query_arg = false, $die = true ) {
+		$given = $_POST[ $query_arg ] ?? '';
+		return 'nonce:' . $action === $given;
+	}
+}
+
+if ( ! function_exists( 'esc_url' ) ) {
+	function esc_url( $url ) { return (string) $url; }
+}
+
+if ( ! function_exists( 'get_edit_post_link' ) ) {
+	function get_edit_post_link( $id = 0, $context = 'display' ) { return 'https://example.test/wp-admin/post.php?post=' . (int) $id; }
+}
+
+if ( ! function_exists( 'is_admin' ) ) {
+	function is_admin() { return true; }
+}
+
+if ( ! function_exists( 'wp_create_nonce' ) ) {
+	function wp_create_nonce( $action = -1 ) {
+		$GLOBALS['ra_nonces'][] = (string) $action;
+		return 'nonce:' . $action;
+	}
+}
+
+if ( ! function_exists( 'wp_enqueue_composer_script' ) ) {
+	function wp_enqueue_composer_script( $handle, ...$rest ) { $GLOBALS['ra_scripts'][ $handle ] = true; }
+}
+
+if ( ! function_exists( 'wp_enqueue_composer_style' ) ) {
+	function wp_enqueue_composer_style( $handle, ...$rest ) { $GLOBALS['ra_scripts'][ $handle ] = true; }
+}
+
+if ( ! function_exists( 'wp_json_encode' ) ) {
+	function wp_json_encode( $data, $flags = 0 ) { return json_encode( $data, $flags ); }
+}
+
+if ( ! function_exists( 'wp_localize_script' ) ) {
+	function wp_localize_script( $handle, $name, $data ) {
+		$GLOBALS['ra_inline'][ $handle ] = array( 'name' => $name, 'data' => $data );
+		return true;
+	}
+}
+
+if ( ! function_exists( 'wp_send_json_error' ) ) {
+	function wp_send_json_error( $data = null, $status = 400 ) {
+		$GLOBALS['ra_json'][] = array( 'success' => false, 'data' => $data, 'status' => $status );
+		throw new RA_Sent();
+	}
+}
+
+if ( ! function_exists( 'wp_send_json_success' ) ) {
+	function wp_send_json_success( $data = null, $status = 200 ) {
+		$GLOBALS['ra_json'][] = array( 'success' => true, 'data' => $data, 'status' => $status );
+		throw new RA_Sent();
+	}
+}
+
+if ( ! class_exists( 'RA_Sent' ) ) {
+	/**
+	 * wp_send_json_*() exits; this stands in for that so a test can continue.
+	 *
+	 * Extends Error rather than Exception on purpose. handle_ajax() wraps the
+	 * callback in catch ( Exception ), so an Exception-based stub is swallowed by
+	 * the code under test and reported as a 500 -- which is not what a real exit
+	 * does, and made a passing action look like a crashing one.
+	 */
+	class RA_Sent extends Error {}
+}
+
 require_once dirname( __DIR__ ) . '/vendor/autoload.php';
 
 /*
@@ -40,7 +138,8 @@ if ( ! function_exists( 'add_filter' ) ) {
 }
 
 if ( ! function_exists( 'wp_parse_args' ) ) {
-	function wp_parse_args( $args, $defaults = [] ) {
+	function wp_parse_args( $args, $defaults = array() ) {
+		if ( is_object( $args ) ) { $args = get_object_vars( $args ); }
 		return array_merge( $defaults, (array) $args );
 	}
 }
@@ -149,7 +248,7 @@ if ( ! function_exists( 'wp_strip_all_tags' ) ) {
 
 if ( ! function_exists( 'wp_unslash' ) ) {
 	function wp_unslash( $value ) {
-		return is_string( $value ) ? stripslashes( $value ) : $value;
+		return is_array( $value ) ? array_map( 'wp_unslash', $value ) : ( is_string( $value ) ? stripslashes( $value ) : $value );
 	}
 }
 
@@ -197,11 +296,20 @@ function rc_reset_globals(): void {
 	$GLOBALS['rc_caps']  = null;
 	$GLOBALS['rc_screen'] = null;
 	$GLOBALS['rc_did']    = [];
+	$GLOBALS['ra_scripts'] = [];
+	$GLOBALS['ra_inline']  = [];
+	$GLOBALS['ra_json']    = [];
+	$GLOBALS['ra_nonces']  = [];
 
 	// The column registry and the record of which tables have had their
 	// hooks attached are both static, which is right in a request and wrong
 	// across tests: the second test would find no hooks attached at all,
 	// because the first already claimed the table.
+	if ( class_exists( 'ArrayPress\\RegisterColumns\\Abstracts\\RowActions' ) ) {
+		( new ReflectionProperty( 'ArrayPress\\RegisterColumns\\Abstracts\\RowActions', 'actions' ) )->setValue( null, [] );
+		( new ReflectionProperty( 'ArrayPress\\RegisterColumns\\Abstracts\\RowActions', 'assets_enqueued' ) )->setValue( null, false );
+	}
+
 	if ( class_exists( 'ArrayPress\\RegisterColumns\\Abstracts\\Columns' ) ) {
 		foreach ( [ 'columns', 'hooked' ] as $property ) {
 			( new ReflectionProperty( 'ArrayPress\\RegisterColumns\\Abstracts\\Columns', $property ) )->setValue( null, [] );
