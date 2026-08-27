@@ -19,6 +19,7 @@ namespace ArrayPress\RegisterColumns\Tables;
 
 use ArrayPress\RegisterColumns\Abstracts\Columns;
 use ArrayPress\RegisterColumns\Support\Screen;
+use ArrayPress\RegisterColumns\Support\Image;
 
 /**
  * Class Media
@@ -154,5 +155,17 @@ class Media extends Columns {
 				$query->set( 'orderby', 'ID' );
 			}
 		}
+	}
+
+	/**
+	 * The attachment itself.
+	 *
+	 * @param int|string       $object_id The attachment.
+	 * @param int|string|array $size      Configured size.
+	 *
+	 * @return string
+	 */
+	protected function render_default_image( $object_id, $size ): string {
+		return Image::from_attachment( (int) $object_id, $size );
 	}
 }

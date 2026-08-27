@@ -18,6 +18,7 @@ namespace ArrayPress\RegisterColumns\Tables;
 
 use ArrayPress\RegisterColumns\Abstracts\Columns;
 use ArrayPress\RegisterColumns\Support\Screen;
+use ArrayPress\RegisterColumns\Support\Image;
 
 /**
  * Class Post
@@ -151,5 +152,17 @@ class Post extends Columns {
 				$query->set( 'orderby', 'ID' );
 			}
 		}
+	}
+
+	/**
+	 * The featured image.
+	 *
+	 * @param int|string       $object_id The post.
+	 * @param int|string|array $size      Configured size.
+	 *
+	 * @return string
+	 */
+	protected function render_default_image( $object_id, $size ): string {
+		return Image::from_attachment( (int) get_post_thumbnail_id( (int) $object_id ), $size );
 	}
 }

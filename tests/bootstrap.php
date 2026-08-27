@@ -15,6 +15,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 	define( 'ABSPATH', __DIR__ . '/' );
 }
 
+if ( ! defined( 'OBJECT' ) ) {
+	define( 'OBJECT', 'OBJECT' );
+}
+
 /* -----------------------------------------------------------------------
  * Row actions
  *
@@ -188,6 +192,64 @@ if ( ! function_exists( 'current_user_can' ) ) {
 	}
 }
 
+/* -----------------------------------------------------------------------
+ * Images
+ *
+ * $GLOBALS['rc_attachments'] maps attachment id => URL; an id absent from it
+ * is one whose file has been deleted, which core reports by returning ''.
+ * $GLOBALS['rc_thumbnails'] maps post id => attachment id.
+ * $GLOBALS['rc_avatars'] maps user id => the markup core would return.
+ * -------------------------------------------------------------------- */
+
+if ( ! function_exists( 'wp_get_attachment_image' ) ) {
+	function wp_get_attachment_image( $attachment_id, $size = 'thumbnail', $icon = false, $attr = array() ) {
+		$url = $GLOBALS['rc_attachments'][ (int) $attachment_id ] ?? '';
+
+		if ( '' === $url ) {
+			return '';
+		}
+
+		$dimensions = is_array( $size ) ? $size : array( 32, 32 );
+
+		return sprintf(
+			'<img src="%s" width="%d" height="%d" alt="" />',
+			$url,
+			(int) $dimensions[0],
+			(int) $dimensions[1]
+		);
+	}
+}
+
+if ( ! function_exists( 'get_post_thumbnail_id' ) ) {
+	function get_post_thumbnail_id( $post = null ) {
+		return $GLOBALS['rc_thumbnails'][ (int) $post ] ?? 0;
+	}
+}
+
+if ( ! function_exists( 'get_avatar' ) ) {
+	function get_avatar( $id_or_email, $size = 96, $default = '', $alt = '', $args = null ) {
+		$key = is_object( $id_or_email ) ? ( $id_or_email->comment_ID ?? 0 ) : $id_or_email;
+
+		if ( ! isset( $GLOBALS['rc_avatars'][ (int) $key ] ) ) {
+			return false;
+		}
+
+		return sprintf( '<img class="avatar" width="%d" src="%s" alt="" />', (int) $size, $GLOBALS['rc_avatars'][ (int) $key ] );
+	}
+}
+
+if ( ! function_exists( 'get_comment' ) ) {
+	function get_comment( $id = null, $output = OBJECT ) {
+		return (object) array( 'comment_ID' => (int) $id );
+	}
+}
+
+if ( ! function_exists( 'get_option' ) ) {
+	function get_option( $option, $default_value = false ) {
+		return $GLOBALS['rc_options'][ $option ] ?? $default_value;
+	}
+}
+
 if ( ! function_exists( 'get_post_meta' ) ) {
 	function get_post_meta( $id, $key = '', $single = false ) {
 		return $GLOBALS['rc_meta']['post'][ $id ][ $key ] ?? '';
@@ -300,6 +362,11 @@ function rc_reset_globals(): void {
 	$GLOBALS['ra_inline']  = [];
 	$GLOBALS['ra_json']    = [];
 	$GLOBALS['ra_nonces']  = [];
+
+	$GLOBALS['rc_attachments'] = [];
+	$GLOBALS['rc_thumbnails']  = [];
+	$GLOBALS['rc_avatars']     = [];
+	$GLOBALS['rc_options']     = [];
 
 	// The column registry and the record of which tables have had their
 	// hooks attached are both static, which is right in a request and wrong

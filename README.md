@@ -17,6 +17,7 @@ wired for you.
 ## Features
 
 * Add a column to any core list table, from a meta key or a callback
+* Show a thumbnail — a featured image, an avatar, or one stored in meta
 * Make it sortable, including numerically, without writing the query
 * Set its width and where it sits relative to the existing columns
 * Add a dropdown filter above the table, and have it applied to the query
@@ -49,6 +50,45 @@ register_post_columns( 'download', [
 
 `numeric` is the one that catches people out: without it, sorting is
 alphabetical and 9 comes after 10.
+
+## Image columns
+
+`image` shows a thumbnail. With no `meta_key` the table uses its own natural
+image — the featured image on a post, the avatar on a user or comment, the
+file itself on a media item — which is the same relationship core has between
+the users table and the avatar it puts in the username column:
+
+```php
+register_post_columns( 'download', [
+	'thumb' => [
+		'label'    => __( 'Image', 'my-plugin' ),
+		'image'    => true,
+		'position' => 'before:title',
+	],
+] );
+```
+
+With a `meta_key`, whatever is stored there is the image. An attachment id and
+a URL both work, since both are things people store:
+
+```php
+register_taxonomy_columns( 'product_brand', [
+	'logo' => [
+		'label'    => __( 'Logo', 'my-plugin' ),
+		'image'    => true,
+		'meta_key' => 'brand_logo',
+	],
+] );
+```
+
+`image_size` takes square pixels, a registered size name, or a `[ width,
+height ]` pair. It defaults to 32 — the size core uses for the avatar, so an
+image column sitting next to a core one lines up with it.
+
+A term has no natural image, so a term column needs a `meta_key`. An empty
+value, a post with no featured image, and an id whose attachment has since
+been deleted all show the same dash every other empty cell shows, rather than
+a broken image.
 
 The other three take the same shape:
 

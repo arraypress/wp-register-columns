@@ -18,6 +18,7 @@ namespace ArrayPress\RegisterColumns\Tables;
 
 use ArrayPress\RegisterColumns\Abstracts\Columns;
 use ArrayPress\RegisterColumns\Support\Screen;
+use ArrayPress\RegisterColumns\Support\Image;
 
 /**
  * Class User
@@ -130,5 +131,25 @@ class User extends Columns {
 			$query->set( 'meta_key', $meta_key );
 			$query->set( 'orderby', $sort_numeric ? 'meta_value_num' : 'meta_value' );
 		}
+	}
+
+	/**
+	 * The avatar, exactly as core puts it in the username column.
+	 *
+	 * get_avatar() rather than an attachment: an avatar is derived from the
+	 * user's email through Gravatar or a filter, and has no media library id
+	 * to look up.
+	 *
+	 * @param int|string       $object_id The user.
+	 * @param int|string|array $size      Configured size.
+	 *
+	 * @return string
+	 */
+	protected function render_default_image( $object_id, $size ): string {
+		[ $width ] = Image::pixels( $size );
+
+		$html = get_avatar( (int) $object_id, $width );
+
+		return is_string( $html ) ? $html : '';
 	}
 }

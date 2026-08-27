@@ -18,6 +18,7 @@ namespace ArrayPress\RegisterColumns\Tables;
 
 use ArrayPress\RegisterColumns\Abstracts\Columns;
 use ArrayPress\RegisterColumns\Support\Screen;
+use ArrayPress\RegisterColumns\Support\Image;
 
 /**
  * Class Comment
@@ -142,5 +143,21 @@ class Comment extends Columns {
 			$query->query_vars['meta_key'] = $meta_key;
 			$query->query_vars['orderby']  = $sort_numeric ? 'meta_value_num' : 'meta_value';
 		}
+	}
+
+	/**
+	 * The comment author's avatar, as core shows it in the author column.
+	 *
+	 * @param int|string       $object_id The comment.
+	 * @param int|string|array $size      Configured size.
+	 *
+	 * @return string
+	 */
+	protected function render_default_image( $object_id, $size ): string {
+		[ $width ] = Image::pixels( $size );
+
+		$html = get_avatar( get_comment( (int) $object_id ), $width );
+
+		return is_string( $html ) ? $html : '';
 	}
 }

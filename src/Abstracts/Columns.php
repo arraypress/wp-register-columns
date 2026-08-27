@@ -17,6 +17,8 @@ declare( strict_types=1 );
 
 namespace ArrayPress\RegisterColumns\Abstracts;
 
+use ArrayPress\RegisterColumns\Support\Image;
+
 use ArrayPress\RegisterColumns\Traits\Request;
 use ArrayPress\ArrayUtils\Arr;
 use Exception;
@@ -144,6 +146,8 @@ abstract class Columns {
 			'display_callback'    => null,
 			'permission_callback' => null,
 			'width'               => null,
+			'image'               => false,
+			'image_size'          => Image::DEFAULT_SIZE,
 		];
 
 		foreach ( $columns as $key => $column ) {
@@ -286,13 +290,33 @@ abstract class Columns {
 		$rules = '';
 
 		foreach ( self::get_columns( $this->object_type, $this->object_subtype ) as $key => $column ) {
-			$width = self::sanitize_width( (string) ( $column['width'] ?? '' ) );
+			$class    = sanitize_html_class( (string) $key );
+			$width    = self::sanitize_width( (string) ( $column['width'] ?? '' ) );
+			$is_image = false !== ( $column['image'] ?? false ) && null !== ( $column['image'] ?? false );
+
+			if ( $is_image ) {
+				// An image column with no width set stretches like any other,
+				// which puts a 32px thumbnail in the middle of a third of the
+				// table. Fall back to the image's own width plus core's cell
+				// padding rather than making every caller say it.
+				if ( '' === $width ) {
+					$width = ( Image::pixels( $column['image_size'] ?? Image::DEFAULT_SIZE )[0] + 20 ) . 'px';
+				}
+
+				// Killing the margin core puts on list-table images: that rule
+				// exists to sit an avatar beside a username, and here there is
+				// nothing beside it.
+				$rules .= sprintf(
+					'.column-%1$s img{display:block;margin:0;float:none;max-width:100%%;height:auto}',
+					$class
+				);
+			}
 
 			if ( '' === $width ) {
 				continue;
 			}
 
-			$rules .= sprintf( '.column-%s{width:%s}', sanitize_html_class( (string) $key ), $width );
+			$rules .= sprintf( '.column-%s{width:%s}', $class, $width );
 		}
 
 		// Nothing to say, so nothing said. An empty <style> element in every
@@ -370,6 +394,10 @@ abstract class Columns {
 				: (string) call_user_func( $column['display_callback'], $this->get_meta( $object_id, $meta_key ), $object_id );
 		}
 
+		if ( false !== $column['image'] && null !== $column['image'] ) {
+			return $this->render_image_cell( $object_id, $column );
+		}
+
 		$value = '' === $meta_key ? '' : $this->get_meta( $object_id, $meta_key );
 
 		// Not empty(): a stored nought is a value, and a column of counts
@@ -380,6 +408,50 @@ abstract class Columns {
 		}
 
 		return esc_html( (string) $value );
+	}
+
+	/**
+	 * What one cell of an image column contains.
+	 *
+	 * With a meta_key the stored value is the image -- an attachment id or a
+	 * URL. Without one the table says what its own natural image is: the
+	 * featured image on a post, the avatar on a user, the file itself on a
+	 * media item. That is the same relationship core has between the users
+	 * table and the avatar it puts in the username column, which is what
+	 * this is for.
+	 *
+	 * @param int|string           $object_id The object.
+	 * @param array<string, mixed> $column    The column's configuration.
+	 *
+	 * @return string
+	 */
+	protected function render_image_cell( $object_id, array $column ): string {
+		$meta_key = (string) ( $column['meta_key'] ?? '' );
+		$size     = $column['image_size'] ?? Image::DEFAULT_SIZE;
+
+		$html = '' === $meta_key
+			? $this->render_default_image( $object_id, $size )
+			: Image::render( $this->get_meta( $object_id, $meta_key ), $size );
+
+		// A post with no featured image, or an attachment id whose file has
+		// been deleted. Either way the cell shows what every other empty
+		// cell shows rather than a broken image.
+		return '' === $html ? self::placeholder() : $html;
+	}
+
+	/**
+	 * The image this table shows when the column names no meta_key.
+	 *
+	 * Empty by default: a table with no natural image of its own -- terms --
+	 * should ask for one with a meta_key rather than invent it.
+	 *
+	 * @param int|string       $object_id The object.
+	 * @param int|string|array $size      Configured size.
+	 *
+	 * @return string
+	 */
+	protected function render_default_image( $object_id, $size ): string {
+		return '';
 	}
 
 	/**
