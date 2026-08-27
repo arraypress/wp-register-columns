@@ -187,14 +187,23 @@ abstract class Columns {
 	/**
 	 * Get the configuration for a specific column by name.
 	 *
-	 * @param string $column_name    The name of the column.
-	 * @param string $object_type    Object type.
-	 * @param string $object_subtype Object subtype.
+	 * Both types default to the ones this instance was built for, which is
+	 * what every caller wants and what every caller was passing by hand.
+	 * Requiring them was an argument count waiting to go wrong: ten call
+	 * sites in edd-registrars passed the object type and stopped, and each
+	 * one was an ArgumentCountError the moment its column drew a cell.
+	 *
+	 * @param string      $column_name    The name of the column.
+	 * @param string|null $object_type    Object type, or null for this one.
+	 * @param string|null $object_subtype Object subtype, or null for this one.
 	 *
 	 * @return array|null The column configuration if exists, null otherwise.
 	 */
-	public function get_column_by_name( string $column_name, string $object_type, string $object_subtype ): ?array {
-		$columns = self::get_columns( $object_type, $object_subtype );
+	public function get_column_by_name( string $column_name, ?string $object_type = null, ?string $object_subtype = null ): ?array {
+		$columns = self::get_columns(
+			$object_type ?? $this->object_type,
+			$object_subtype ?? $this->object_subtype
+		);
 
 		return $columns[ $column_name ] ?? null;
 	}
