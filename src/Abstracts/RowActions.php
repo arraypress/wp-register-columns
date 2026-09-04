@@ -443,7 +443,7 @@ abstract class RowActions {
 		$version = defined( 'WP_DEBUG' ) && WP_DEBUG ? time() : '1.0.0';
 
 		// Enqueue JavaScript using Composer Assets helper
-		wp_enqueue_composer_script(
+		arraypress_enqueue_composer_script(
 			Runtime::handle(),
 			__FILE__,
 			'js/row-actions.js',
@@ -467,7 +467,7 @@ abstract class RowActions {
 		);
 
 		// Enqueue CSS using Composer Assets helper
-		wp_enqueue_composer_style(
+		arraypress_enqueue_composer_style(
 			Runtime::handle(),
 			__FILE__,
 			'css/row-actions.css',

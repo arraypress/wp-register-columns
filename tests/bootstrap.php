@@ -72,12 +72,12 @@ if ( ! function_exists( 'wp_create_nonce' ) ) {
 	}
 }
 
-if ( ! function_exists( 'wp_enqueue_composer_script' ) ) {
-	function wp_enqueue_composer_script( $handle, ...$rest ) { $GLOBALS['ra_scripts'][ $handle ] = true; }
+if ( ! function_exists( 'arraypress_enqueue_composer_script' ) ) {
+	function arraypress_enqueue_composer_script( $handle, ...$rest ) { $GLOBALS['ra_scripts'][ $handle ] = true; }
 }
 
-if ( ! function_exists( 'wp_enqueue_composer_style' ) ) {
-	function wp_enqueue_composer_style( $handle, ...$rest ) { $GLOBALS['ra_scripts'][ $handle ] = true; }
+if ( ! function_exists( 'arraypress_enqueue_composer_style' ) ) {
+	function arraypress_enqueue_composer_style( $handle, ...$rest ) { $GLOBALS['ra_scripts'][ $handle ] = true; }
 }
 
 if ( ! function_exists( 'wp_json_encode' ) ) {
